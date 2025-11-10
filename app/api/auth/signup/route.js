@@ -2,7 +2,7 @@ import db from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 
-export async function POST(req, res) {
+export async function POST(req,) {
   try {
     const { name, email, password } = await req.json();
 
@@ -34,6 +34,7 @@ export async function POST(req, res) {
         name,
         email,
         password: hashedPassword,
+        role:"admin"
       },
     });
 

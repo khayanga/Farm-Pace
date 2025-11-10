@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,15 +11,109 @@ enum Role {
   farmer
   admin
   engineer
+  agronomist
 }
 
 model User {
-  user_id        String   @id @default(uuid())
+  user_id   String     @id @default(uuid())
   name      String?
-  email     String   @unique
+  email     String     @unique
   password  String?
-  role      Role     @default(farmer)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      Role       @default(admin)
+  farms     FarmUser[]
+  cropLogs  CropLog[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
+model Farm {
+  id        String     @id @default(uuid())
+  farmNumber  Int      @unique @default(autoincrement())
+  name      String
+  location  String?
+  gps       String?
+  code      String     @unique
+  users     FarmUser[]
+  crops     FarmCrop[]
+  vendors   Vendor[]
+  offtakers Offtaker[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+}
+
+model FarmUser {
+  id      Int    @id @default(autoincrement())
+  user_id String
+  farm_id String
+  role    Role
+  user    User   @relation(fields: [user_id], references: [user_id])
+  farm    Farm   @relation(fields: [farm_id], references: [id])
+}
+
+model Crop {
+  id        Int        @id @default(autoincrement())
+  name      String
+  category  String?
+  phiData   PHIData[]
+  farmCrops FarmCrop[]
+}
+
+model FarmCrop {
+  id        Int       @id @default(autoincrement())
+  farm_id   String
+  crop_id   Int
+  variety   String
+  plantedAt DateTime  @default(now())
+  farm      Farm      @relation(fields: [farm_id], references: [id])
+  crop      Crop      @relation(fields: [crop_id], references: [id])
+  logs      CropLog[]
+  harvests  Harvest[]
+}
+
+model CropLog {
+  id          Int      @id @default(autoincrement())
+  farmCrop_id Int
+  logType     String
+  description String?
+  quantity    Float?
+  unit        String?
+  createdBy   String
+  createdAt   DateTime @default(now())
+  farmCrop    FarmCrop @relation(fields: [farmCrop_id], references: [id])
+  user        User     @relation(fields: [createdBy], references: [user_id])
+}
+
+model Harvest {
+  id          Int      @id @default(autoincrement())
+  farmCrop_id Int
+  grade1      Float?
+  grade2      Float?
+  grade3      Float?
+  date        DateTime @default(now())
+  farmCrop    FarmCrop @relation(fields: [farmCrop_id], references: [id])
+}
+
+model PHIData {
+  id       Int    @id @default(autoincrement())
+  crop_id  Int
+  chemical String
+  phiDays  Int
+  crop     Crop   @relation(fields: [crop_id], references: [id])
+}
+
+model Vendor {
+  id      Int    @id @default(autoincrement())
+  farm_id String
+  name    String
+  type    String
+  farm    Farm   @relation(fields: [farm_id], references: [id])
+}
+
+model Offtaker {
+  id      Int     @id @default(autoincrement())
+  farm_id String
+  name    String
+  contact String?
+  farm    Farm    @relation(fields: [farm_id], references: [id])
+}
