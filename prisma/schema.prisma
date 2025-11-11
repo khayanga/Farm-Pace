@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
@@ -16,31 +16,31 @@ enum Role {
 }
 
 model User {
-  user_id   String     @id @default(uuid())
-  name      String?
-  email     String     @unique
-  password  String?
-  role      Role       @default(admin)
-  farms     FarmUser[]
-  cropLogs  CropLog[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  user_id            String     @id @default(uuid())
+  name               String?
+  email              String     @unique
+  password           String?
+  role               Role       @default(admin)
+  forcePasswordReset Boolean    @default(true)
+  farms              FarmUser[]      
+  cropLogs           CropLog[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 model Farm {
-  id        String     @id @default(uuid())
-  farmNumber  Int      @unique @default(autoincrement())
-  name      String
-  location  String?
-  gps       String?
-  code      String     @unique
-  users     FarmUser[]
-  crops     FarmCrop[]
-  vendors   Vendor[]
-  offtakers Offtaker[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  
+  id          String     @id @default(uuid())
+  farmNumber  Int        @unique @default(autoincrement())
+  name        String
+  location    String?
+  gps         String?
+  code        String     @unique   
+  users       FarmUser[]  
+  crops       FarmCrop[]
+  vendors     Vendor[]
+  offtakers   Offtaker[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model FarmUser {
@@ -66,6 +66,7 @@ model FarmCrop {
   crop_id   Int
   variety   String
   plantedAt DateTime  @default(now())
+
   farm      Farm      @relation(fields: [farm_id], references: [id])
   crop      Crop      @relation(fields: [crop_id], references: [id])
   logs      CropLog[]
@@ -81,6 +82,7 @@ model CropLog {
   unit        String?
   createdBy   String
   createdAt   DateTime @default(now())
+
   farmCrop    FarmCrop @relation(fields: [farmCrop_id], references: [id])
   user        User     @relation(fields: [createdBy], references: [user_id])
 }
@@ -92,6 +94,7 @@ model Harvest {
   grade2      Float?
   grade3      Float?
   date        DateTime @default(now())
+
   farmCrop    FarmCrop @relation(fields: [farmCrop_id], references: [id])
 }
 

@@ -10,8 +10,8 @@ export async function POST(req, context) {
     if (!farmId) {
       return NextResponse.json({ error: "Missing farm ID" }, { status: 400 });
     }
-    
-     let user = await db.user.findUnique({ where: { email } });
+
+    let user = await db.user.findUnique({ where: { email } });
     if (!user) {
       user = await db.user.create({
         data: { name, email, role },
@@ -32,7 +32,6 @@ export async function POST(req, context) {
       );
     }
 
-    
     const farmUser = await db.farmUser.create({
       data: {
         role,
@@ -72,8 +71,15 @@ export async function GET(req, context) {
     }
 
     const farmUsers = await db.farmUser.findMany({
-      where: { farm_id: farmId },
-      include: { user: true },
+      where: {
+        farm_id: farmId,
+        role: {
+          not: "admin",
+        },
+      },
+      include: {
+        user: true,
+      },
     });
 
     const formattedUsers = farmUsers.map((fu) => ({
