@@ -1,9 +1,11 @@
-import SensorForm from '@/components/sensors/SensorForm'
-import SensorTable from '@/components/sensors/SensorTable'
-import React from 'react'
+import SensorForm from "@/components/sensors/SensorForm";
+import SensorTable from "@/components/sensors/SensorTable";
+import db from "@/lib/prisma"; 
 
-const page = async() => {
-     const farms = await db.farm.findMany({
+export const dynamic = "force-dynamic"; 
+
+export default async function Page() {
+  const farms = await db.farm.findMany({
     select: { id: true, name: true, code: true },
     orderBy: { name: "asc" },
   });
@@ -13,7 +15,5 @@ const page = async() => {
       <SensorForm farms={farms} />
       <SensorTable />
     </main>
-  )
+  );
 }
-
-export default page

@@ -9,7 +9,7 @@ export default function SensorTable() {
   useEffect(() => {
     async function fetchSensors() {
       try {
-        const res = await fetch("/api/sensors");
+        const res = await fetch("/api/sensors", { cache: "no-store" });
         const data = await res.json();
         if (res.ok) setSensors(data);
       } catch (err) {

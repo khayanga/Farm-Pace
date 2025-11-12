@@ -37,7 +37,7 @@ export default function SensorForm({ farms }) {
       }
     } catch (err) {
       console.error(err);
-      toast.error("❌ Error creating sensor.");
+      toast.error(" Error creating sensor.");
     } finally {
       setLoading(false);
     }
