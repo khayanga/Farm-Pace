@@ -1,5 +1,6 @@
 
 import { Home } from 'lucide-react';
+import { Drone } from 'lucide-react';
 import { Settings } from 'lucide-react';
 import { UserCircle } from 'lucide-react';
 import { MapPin, Scale, User, Leaf, Sprout, Cloud, ClipboardList, CalendarCheck, DollarSign } from "lucide-react";
@@ -23,10 +24,16 @@ export const navItems=[
       icon: UserCircle,
     },
     {
+      title: "Sensors",
+      url: "/sensors",
+      icon: Drone,
+    },
+    {
       title: "Account",
       url: "/account",
       icon: Settings,
     },
+    
     
 
 ]

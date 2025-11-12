@@ -14,6 +14,14 @@ enum Role {
   engineer
   agronomist
 }
+enum SensorMetric {
+  temperature_day
+  temperature_night
+  humidity
+  soil_moisture
+  soil_ph
+  co2
+}
 
 model User {
   user_id            String     @id @default(uuid())
@@ -39,6 +47,8 @@ model Farm {
   crops       FarmCrop[]
   vendors     Vendor[]
   offtakers   Offtaker[]
+  sensorData  SensorData[]
+  sensors     Sensor[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
@@ -71,6 +81,7 @@ model FarmCrop {
   crop      Crop      @relation(fields: [crop_id], references: [id])
   logs      CropLog[]
   harvests  Harvest[]
+  sensors    SensorData[]
 }
 
 model CropLog {
@@ -121,3 +132,28 @@ model Offtaker {
   contact String?
   farm    Farm    @relation(fields: [farm_id], references: [id])
 }
+
+model SensorData {
+  id          Int           @id @default(autoincrement())
+  farm_id     String
+  sensor_id   Int?
+  crop_id     Int?
+  metric      SensorMetric  
+  value       Float
+  unit        String?
+  recordedAt  DateTime      @default(now())
+  farm        Farm          @relation(fields: [farm_id], references: [id])
+  crop        FarmCrop?     @relation(fields: [crop_id], references: [id])
+  sensor      Sensor?       @relation(fields: [sensor_id], references: [id], name: "SensorReadings")
+}
+model Sensor {
+  id          Int           @id @default(autoincrement())
+  code        String        @unique 
+  farm_id     String          
+  description String?       
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  farm        Farm          @relation(fields: [farm_id], references: [id])
+  readings    SensorData[]  @relation("SensorReadings")
+}
+

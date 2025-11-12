@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 export async function PATCH(req, context) {
   try {
     const user = await getCurrentUser(req);
-    if (!user)
+    if (!user || user.role !=="admin")
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
      const params = await context.params

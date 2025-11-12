@@ -34,7 +34,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50">
+    <div className="flex justify-center items-center min-h-screen ">
       <div className="w-full max-w-md">
         <AuthForm mode="signin" onSubmit={handleSubmit} loading={loading} />
         {error && (
