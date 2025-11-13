@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/nodemailer";
 import { welcomeEmailTemplate } from "@/emails/templates/welcome";
 
-// Helper to generate temporary password
+
 function generateTempPassword(length = 10) {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
   let password = "";
@@ -17,13 +17,13 @@ function generateTempPassword(length = 10) {
 
 export async function POST(req) {
   try {
-    // Check admin access
+    
     const admin = await getCurrentUser(req);
     if (!admin || admin.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Parse request body
+    
     const { name, email, role, farmCode } = await req.json();
     if (!name || !email || !role || !farmCode) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });

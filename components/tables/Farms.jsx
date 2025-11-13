@@ -60,16 +60,7 @@ export default function Farms({ farms, onEdit, onDelete }) {
                         <DropdownMenuItem onClick={() => onEdit(farm)}>
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => router.push(`/users/${farm.id}`)} 
-                        >
-                          Users
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => router.push(`/farms/${farm.id}/sensors`)} 
-                        >
-                           Sensors
-                        </DropdownMenuItem>
+                        
 
 
                         {/* <DropdownMenuItem

@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function SensorTable() {
+  const router = useRouter()
   const [sensors, setSensors] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,6 +39,7 @@ export default function SensorTable() {
               <th className="p-2">Farm Name</th>
               <th className="p-2">Farm Code</th>
               <th className="p-2">Location</th>
+              <th className="p-2">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -46,6 +49,14 @@ export default function SensorTable() {
                 <td className="p-2">{s.farm?.name}</td>
                 <td className="p-2">{s.farm?.code}</td>
                  <td className="p-2">{s.farm?.location}</td>
+                  <td className="p-2">
+                  <button
+                    onClick={() => router.push(`/sensors/${s.id}`)}
+                    className="bg-blue-600 text-white px-3 py-1 rounded"
+                  >
+                    View
+                  </button>
+                </td>
                 
               </tr>
             ))}
