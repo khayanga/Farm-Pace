@@ -25,7 +25,7 @@ export async function POST(req) {
 
     const farm = await db.farm.findUnique({ where: { code: farmCode } });
 
-    if (!farm) {r
+    if (!farm) {
       return NextResponse.json(
         { error: "Farm code is not available" },
         { status: 404 }

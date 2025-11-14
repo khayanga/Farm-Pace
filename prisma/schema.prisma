@@ -13,6 +13,7 @@ enum Role {
   admin
   engineer
   agronomist
+  marketer
 }
 enum SensorMetric {
   temperature_day
@@ -49,6 +50,7 @@ model Farm {
   offtakers   Offtaker[]
   sensorData  SensorData[]
   sensors     Sensor[]
+  templates   CropTemplate[] @relation("FarmToTemplate")
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
@@ -67,22 +69,35 @@ model Crop {
   name      String
   category  String?
   phiData   PHIData[]
-  farmCrops FarmCrop[]
+  
 }
 
-model FarmCrop {
+model CropTemplate {
   id        Int       @id @default(autoincrement())
+  name      String
   farm_id   String
-  crop_id   Int
-  variety   String
-  plantedAt DateTime  @default(now())
-
-  farm      Farm      @relation(fields: [farm_id], references: [id])
-  crop      Crop      @relation(fields: [crop_id], references: [id])
-  logs      CropLog[]
-  harvests  Harvest[]
-  sensors    SensorData[]
+  category  String?
+  farm      Farm      @relation(fields: [farm_id], references: [id], name: "FarmToTemplate")
+  farmCrops FarmCrop[] 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+model FarmCrop {
+  id          Int           @id @default(autoincrement())
+  farm_id     String
+  template_id Int
+  variety     String
+  seedlings   Int?
+  plantedAt   DateTime      @default(now())
+
+  farm        Farm          @relation(fields: [farm_id], references: [id])
+  template    CropTemplate  @relation(fields: [template_id], references: [id])
+  logs        CropLog[]
+  harvests    Harvest[]
+  sensors     SensorData[]
+}
+
+
 
 model CropLog {
   id          Int      @id @default(autoincrement())
