@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "pnpm prisma generate && next build",
-    "start": "next start"
+    "start": "next start",
+    "cron-weather": "node scripts/cron-weather.js"
+  
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
