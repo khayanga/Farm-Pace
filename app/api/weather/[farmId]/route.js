@@ -27,15 +27,16 @@ function findNearestIndex(times) {
   return bestIdx;
 }
 
-// ============== POST ==============
-export async function POST( context) {
+// ================= POST =================
+export async function POST(context) {
   try {
-    const { farmId } = await context.params;
+    const { farmId } = context.params;
 
     const farm = await db.farm.findUnique({
       where: { id: farmId },
       select: { gps: true },
     });
+
     if (!farm?.gps)
       return NextResponse.json({ error: "Farm GPS not available" }, { status: 400 });
 
@@ -45,13 +46,14 @@ export async function POST( context) {
 
     const { lat, lon } = coords;
 
-    const url =
+    const res = await fetch(
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-      `&hourly=temperature_2m,relative_humidity_2m,precipitation,soil_moisture_0_to_10cm` +
-      `&timezone=UTC`;
+        `&hourly=temperature_2m,relative_humidity_2m,precipitation,soil_moisture_0_to_10cm` +
+        `&timezone=UTC`
+    );
 
-    const res = await fetch(url);
-    if (!res.ok) return NextResponse.json({ error: "Weather API failed" }, { status: 502 });
+    if (!res.ok)
+      return NextResponse.json({ error: "Weather API failed" }, { status: 502 });
 
     const data = await res.json();
     const hourly = data.hourly;
@@ -63,9 +65,11 @@ export async function POST( context) {
       where: { farm_id: farmId, recordedAt: new Date(recordedAtIso) },
     });
 
-    if (exists) {
-      return NextResponse.json({ success: true, message: "Already saved", weather: exists }, { status: 200 });
-    }
+    if (exists)
+      return NextResponse.json(
+        { success: true, message: "Already saved", weather: exists },
+        { status: 200 }
+      );
 
     // compute min/max from last 12 hours
     const sliceStart = Math.max(0, idx - 12);
@@ -81,13 +85,6 @@ export async function POST( context) {
         rainfall: hourly.precipitation[idx] ?? null,
         soilMoisture: hourly.soil_moisture_0_to_10cm[idx] ?? null,
         recordedAt: new Date(recordedAtIso),
-        rawResponse: JSON.stringify({
-          lat,
-          lon,
-          source: "open-meteo",
-          idx,
-          savedAt: new Date().toISOString(),
-        }),
       },
     });
 
@@ -98,20 +95,20 @@ export async function POST( context) {
   }
 }
 
-
-export async function GET(_, context ) {
+// ================= GET =================
+export async function GET(_, context) {
   try {
-    const { farmId } =await context.params;
+    const { farmId } = context.params;
+
+    const readings = await db.weatherData.findMany({
+      where: { farm_id: farmId },
+      orderBy: { recordedAt: "asc" },
+    });
 
     const sensorReadings = await db.sensorData.findMany({
       where: { farm_id: farmId },
       orderBy: { recordedAt: "desc" },
       take: 20,
-    });
-
-    const readings = await db.weatherData.findMany({
-      where: { farm_id: farmId },
-      orderBy: { recordedAt: "asc" },
     });
 
     return NextResponse.json({ readings, sensorReadings });
@@ -120,3 +117,4 @@ export async function GET(_, context ) {
     return NextResponse.json({ error: "Failed to read weather" }, { status: 500 });
   }
 }
+

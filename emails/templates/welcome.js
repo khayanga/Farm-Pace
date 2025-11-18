@@ -1,4 +1,5 @@
-const welcomeEmailTemplate = (name, tempPassword, farmName, farmCode) => `
+
+export const welcomeEmailTemplate = (name, tempPassword, farmName, farmCode) => `
   <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #1f2937; background-color: #f7fefc; padding: 20px;">
     <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 12px; padding: 30px; border: 1px solid #d1fae5;">
       <h2 style="color: #65a30d; font-size: 24px; font-weight: bold; margin-bottom: 16px;">
@@ -31,5 +32,3 @@ const welcomeEmailTemplate = (name, tempPassword, farmName, farmCode) => `
     </div>
   </div>
 `;
-
-module.exports = { welcomeEmailTemplate };
