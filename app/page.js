@@ -5,7 +5,8 @@ import Cards from "@/components/dashboard/Cards";
 import Decoration from "@/components/dashboard/Decoration";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import DashboardCharts from "@/components/dashboard/DashboardCharts";
+import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
+
 
 export default function HomePage() {
   const { data: session, status } = useSession();
@@ -16,51 +17,9 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (status === "authenticated") fetchFarms();
-  }, [status]);
-
-  async function fetchFarms() {
-    try {
-      const res = await fetch("/api/farms");
-      const data = await res.json();
-
-      if (res.ok) setFarms(data);
-      else setError(data.error || "Failed to fetch farms");
-    } catch (err) {
-      console.error(err);
-      setError("Failed to fetch farms");
-    }
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const res = await fetch("/api/farms", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, gps, location }),
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        setFarms([...farms, data]);
-        setName("");
-        setGps("");
-        setLocation("");
-      } else {
-        setError(data.error || "Failed to register farm");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Failed to register farm");
-    } finally {
-      setLoading(false);
-    }
-  }
+ 
+  
+ 
 
   if (status === "loading") return <p className="p-8">Loading session...</p>;
   if (status === "unauthenticated")

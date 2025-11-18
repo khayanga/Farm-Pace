@@ -1,5 +1,5 @@
 import { getCurrentUser } from "@/lib/getCurrentUser";
-import db from "@/lib/prisma";
+import db from "@/lib/prisma.js";
 import { NextResponse } from "next/server";
 
 function formatSensorCode(number) {

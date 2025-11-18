@@ -1,6 +1,6 @@
 
 import { getCurrentUser } from "@/lib/getCurrentUser";
-import db from "@/lib/prisma";
+import db from "@/lib/prisma.js";
 import { NextResponse } from "next/server";
 
 export async function PATCH(req, context) {

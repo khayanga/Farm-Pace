@@ -1,116 +1,388 @@
+// "use client"
+
+// import * as React from "react"
+// import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+
+// import {
+//   Card,
+//   CardContent,
+//   CardDescription,
+//   CardHeader,
+//   CardTitle,
+// } from "@/components/ui/card"
+
+// import {
+//   ChartConfig,
+//   ChartContainer,
+//   ChartLegend,
+//   ChartLegendContent,
+//   ChartTooltip,
+//   ChartTooltipContent,
+// } from "@/components/ui/chart"
+
+// export function DashboardCharts() {
+//   const [weatherData, setWeatherData] = React.useState([])
+
+//   // Fetch GPS → Fetch weather → Push into chart
+//   React.useEffect(() => {
+//     if ("geolocation" in navigator) {
+//       navigator.geolocation.getCurrentPosition(async (pos) => {
+//         const { latitude, longitude } = pos.coords
+
+//         async function loadWeather() {
+//           const res = await fetch(`/api/real-time?lat=${latitude}&lon=${longitude}`)
+//           const json = await res.json()
+
+//           setWeatherData((prev) => [
+//             ...prev,
+//             {
+//               date: new Date().toISOString(),
+//               temperature: json.temperature,
+//               humidity: json.humidity,
+//               soil_moisture: json.soil_moisture,
+
+//             },
+//           ])
+//         }
+
+//         loadWeather()
+
+//         const interval = setInterval(loadWeather, 60000)
+//         return () => clearInterval(interval)
+//       })
+//     }
+//   }, [])
+
+//   const chartConfig = {
+//     temperature: {
+//       label: "Temperature (°C)",
+//       color: "var(--chart-1)",
+//     },
+//     humidity: {
+//       label: "Humidity (%)",
+//       color: "var(--chart-2)",
+//     },
+//     soil_moisture: {
+//       label: "Soil moisture (%)",
+//       color: "var(--chart-3)",
+//     },
+//   }
+
+//   return (
+//     <Card className="pt-0">
+//       <CardHeader className="border-b py-5">
+//         <div className="grid gap-1">
+//           <CardTitle>Weather Monitoring Chart</CardTitle>
+//           <CardDescription>
+//             Real-time temperature & humidity readings from your location
+//           </CardDescription>
+//         </div>
+//       </CardHeader>
+
+//       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+//         <ChartContainer
+//           config={chartConfig}
+//           className="aspect-auto h-[250px] w-full"
+//         >
+//           <AreaChart data={weatherData}>
+//             <defs>
+//               <linearGradient id="fillTemperature" x1="0" y1="0" x2="0" y2="1">
+//                 <stop offset="5%" stopColor="var(--color-temperature)" stopOpacity={0.8} />
+//                 <stop offset="95%" stopColor="var(--color-temperature)" stopOpacity={0.1} />
+//               </linearGradient>
+
+//               <linearGradient id="fillHumidity" x1="0" y1="0" x2="0" y2="1">
+//                 <stop offset="5%" stopColor="var(--color-humidity)" stopOpacity={0.8} />
+//                 <stop offset="95%" stopColor="var(--color-humidity)" stopOpacity={0.1} />
+//               </linearGradient>
+
+//             </defs>
+
+//             <CartesianGrid vertical={false} />
+
+//             <XAxis
+//               dataKey="date"
+//               tickLine={false}
+//               axisLine={false}
+//               tickMargin={8}
+//               minTickGap={32}
+//               tickFormatter={(value) => {
+//                 return new Date(value).toLocaleTimeString("en-US", {
+//                   hour: "2-digit",
+//                   minute: "2-digit",
+//                 })
+//               }}
+//             />
+
+//             <ChartTooltip
+//               cursor={false}
+//               content={
+//                 <ChartTooltipContent
+//                   labelFormatter={(value) =>
+//                     new Date(value).toLocaleTimeString("en-US")
+//                   }
+//                   indicator="dot"
+//                 />
+//               }
+//             />
+
+//             <Area
+//               dataKey="temperature"
+//               type="natural"
+//               fill="url(#fillTemperature)"
+//               stroke="var(--color-temperature)"
+//               stackId="a"
+//             />
+
+//             <Area
+//               dataKey="humidity"
+//               type="natural"
+//               fill="url(#fillHumidity)"
+//               stroke="var(--color-humidity)"
+//               stackId="a"
+//             />
+//             <Area
+//               dataKey="soil_moisture"
+//               type="natural"
+//               fill="url(#fillSoilMoisture)"
+//               stroke="var(--color-soil_moisture)"
+//               stackId="a"
+//             />
+
+//             <ChartLegend content={<ChartLegendContent />} />
+//           </AreaChart>
+//         </ChartContainer>
+//       </CardContent>
+//     </Card>
+//   )
+// }
 
 "use client";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import * as React from "react";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+
 import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-// ✅ Dummy Sensor Data
-const soilData = [
-  { day: "Mon", moisture: 40, ph: 6.5, ec: 1.2 },
-  { day: "Tue", moisture: 55, ph: 6.8, ec: 1.3 },
-  { day: "Wed", moisture: 50, ph: 6.4, ec: 1.1 },
-  { day: "Thu", moisture: 65, ph: 6.7, ec: 1.4 },
-  { day: "Fri", moisture: 70, ph: 6.6, ec: 1.3 },
-];
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 
-const weatherData = [
-  { day: "Mon", temp: 22, rainfall: 5 },
-  { day: "Tue", temp: 26, rainfall: 0 },
-  { day: "Wed", temp: 24, rainfall: 12 },
-  { day: "Thu", temp: 28, rainfall: 2 },
-  { day: "Fri", temp: 25, rainfall: 10 },
-];
+export function DashboardCharts() {
+  const [farms, setFarms] = React.useState([]);
+  const [selectedFarm, setSelectedFarm] = React.useState("");
+  const [weatherData, setWeatherData] = React.useState([]);
 
-const yieldData = [
-  { day: "Mon", yield: 120 },
-  { day: "Tue", yield: 150 },
-  { day: "Wed", yield: 180 },
-  { day: "Thu", yield: 200 },
-  { day: "Fri", yield: 170 },
-];
+  React.useEffect(() => {
+    async function loadFarms() {
+      const res = await fetch("/api/farms");
+      const json = await res.json();
+      setFarms(json);
+    }
 
-export default function DashboardCharts() {
+    loadFarms();
+  }, []);
+
+  React.useEffect(() => {
+    if (!selectedFarm) return;
+
+    async function loadWeather() {
+  try {
+    
+    const postRes = await fetch(`/api/weather/${selectedFarm}`, { method: "POST" });
+    if (!postRes.ok) {
+      const err = await postRes.json().catch(() => ({ message: 'unknown' }));
+      console.error("POST /api/weather error:", err);
+      
+    }
+
+    const res = await fetch(`/api/weather/${selectedFarm}`);
+    if (!res.ok) {
+      console.error("GET /api/weather failed:", res.status);
+      return;
+    }
+    const json = await res.json();
+
+    const formatted = json.readings.map((w) => ({
+      date: w.recordedAt,
+      temperature: w.temperature,
+      humidity: w.humidity,
+      soil_moisture: w.soilMoisture,
+    }));
+
+    setWeatherData(formatted);
+  } catch (e) {
+    console.error("loadWeather failed:", e);
+  }
+}
+
+
+    loadWeather();
+  }, [selectedFarm]);
+
+  const chartConfig = {
+    temperature: {
+      label: "Temperature (°C)",
+      color: "var(--chart-1)",
+    },
+    humidity: {
+      label: "Humidity (%)",
+      color: "var(--chart-2)",
+    },
+    soil_moisture: {
+      label: "Soil moisture (%)",
+      color: "var(--chart-3)",
+    },
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8 w-full">
+    <Card className="pt-0">
+      <CardHeader className="border-b py-5 flex flex-col gap-3">
+        <div className="grid gap-1">
+          <CardTitle>Weather Monitoring Chart</CardTitle>
+          <CardDescription>
+            Select a farm to view stored weather data
+          </CardDescription>
+        </div>
 
-        {/* <h1 className="font-bold tracking-wider text-p">Here are some statics </h1> */}
+        {/* FARM SELECT DROPDOWN */}
+        <select
+          className="border p-2 rounded-md text-sm w-64"
+          value={selectedFarm}
+          onChange={(e) => setSelectedFarm(e.target.value)}
+        >
+          <option value="">Select Farm</option>
+          {farms?.map((farm) => (
+            <option key={farm.id} value={farm.id}>
+              {farm.name}
+            </option>
+          ))}
+        </select>
+      </CardHeader>
 
-      {/* ✅ Soil Health Chart */}
-      <Card className="shadow-sm border rounded-2xl">
-        <CardHeader>
-          <CardTitle>Soil Health Metrics</CardTitle>
-        </CardHeader>
-        <CardContent className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={soilData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="moisture" stroke="#0ea5e9" strokeWidth={2} />
-              <Line type="monotone" dataKey="ph" stroke="#22c55e" strokeWidth={2} />
-              <Line type="monotone" dataKey="ec" stroke="#f97316" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+        {!selectedFarm && (
+          <p className="text-sm text-gray-500">Please select a farm above.</p>
+        )}
 
-      {/* ✅ Weather & Rainfall */}
-      <Card className="shadow-sm border rounded-2xl">
-        <CardHeader>
-          <CardTitle>Weather & Rainfall</CardTitle>
-        </CardHeader>
-        <CardContent className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={weatherData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="temp" fill="#3b82f6" />
-              <Bar dataKey="rainfall" fill="#10b981" />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+        {selectedFarm && (
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto h-[250px] w-full"
+          >
+            <AreaChart data={weatherData}>
+              <defs>
+                <linearGradient
+                  id="fillTemperature"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-temperature)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-temperature)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
 
-      {/* ✅ Yield Trends */}
-      <Card className="shadow-sm border rounded-2xl lg:col-span-2">
-        <CardHeader>
-          <CardTitle>Daily Yield Trends</CardTitle>
-        </CardHeader>
-        <CardContent className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={yieldData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="yield"
-                stroke="#8b5cf6"
-                strokeWidth={3}
+                <linearGradient id="fillHumidity" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-humidity)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-humidity)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+
+                <linearGradient
+                  id="fillSoilMoisture"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-soilMoisture)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-soilMoisture)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+              </defs>
+              ...
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                minTickGap={32}
+                tickFormatter={(value) =>
+                  new Date(value).toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                }
               />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-    </div>
+              <ChartTooltip
+                cursor={false}
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(value) =>
+                      new Date(value).toLocaleTimeString("en-US")
+                    }
+                    indicator="dot"
+                  />
+                }
+              />
+              <Area
+                dataKey="temperature"
+                type="natural"
+                fill="url(#fillTemperature)"
+                stroke="var(--color-temperature)"
+              />
+              <Area
+                dataKey="humidity"
+                type="natural"
+                fill="url(#fillHumidity)"
+                stroke="var(--color-humidity)"
+              />
+              <Area
+                dataKey="soil_moisture"
+                type="natural"
+                fill="url(#fillSoilMoisture)"
+                stroke="var(--color-soilMoisture)"
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+            </AreaChart>
+          </ChartContainer>
+        )}
+      </CardContent>
+    </Card>
   );
 }

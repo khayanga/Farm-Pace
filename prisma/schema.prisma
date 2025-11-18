@@ -8,6 +8,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TaskType {
+  fertilizer
+  foliar_fertilizer
+  pesticide
+  fungicide
+  irrigation
+  harvesting
+}
+
+enum TaskStatus {
+  pending
+  completed
+  skipped
+}
+
 enum Role {
   farmer
   admin
@@ -35,6 +50,9 @@ model User {
   cropLogs           CropLog[]
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+  tasksCreated       Task[]        @relation("TasksCreatedBy")
+  taskAssignments    TaskAssignment[]
+  taskNotes          TaskNote[]
 }
 
 model Farm {
@@ -50,6 +68,8 @@ model Farm {
   offtakers   Offtaker[]
   sensorData  SensorData[]
   sensors     Sensor[]
+  tasks       Task[]
+  weatherData WeatherData[]
   templates   CropTemplate[] @relation("FarmToTemplate")
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -95,9 +115,8 @@ model FarmCrop {
   logs        CropLog[]
   harvests    Harvest[]
   sensors     SensorData[]
+  tasks       Task[]
 }
-
-
 
 model CropLog {
   id          Int      @id @default(autoincrement())
@@ -170,5 +189,63 @@ model Sensor {
   updatedAt   DateTime      @updatedAt
   farm        Farm          @relation(fields: [farm_id], references: [id])
   readings    SensorData[]  @relation("SensorReadings")
+}
+
+model Task {
+  id            Int        @id @default(autoincrement())
+  farm_id       String
+  farmCrop_id   Int?
+  title         String
+  description   String?
+  taskType      TaskType
+  color         String
+  startDate     DateTime
+  endDate       DateTime?
+  recurrence    String?
+  createdBy     String
+  status        TaskStatus @default(pending)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  farm          Farm       @relation(fields: [farm_id], references: [id])
+  farmCrop      FarmCrop?  @relation(fields: [farmCrop_id], references: [id])
+  creator       User       @relation("TasksCreatedBy", fields: [createdBy], references: [user_id])
+  assignedTo    TaskAssignment[]
+  notes         TaskNote[]
+}
+
+model TaskAssignment {
+  id       Int   @id @default(autoincrement())
+  task_id  Int
+  user_id  String
+  task     Task  @relation(fields: [task_id], references: [id])
+  user     User  @relation(fields: [user_id], references: [user_id])
+}
+
+model TaskNote {
+  id        Int      @id @default(autoincrement())
+  task_id   Int
+  user_id   String
+  note      String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  task      Task     @relation(fields: [task_id], references: [id])
+  user      User     @relation(fields: [user_id], references: [user_id])
+}
+
+
+model WeatherData {
+  id              Int       @id @default(autoincrement())
+  farm_id         String
+  temperature     Float?    
+  temp_min        Float?    
+  temp_max        Float?   
+  humidity        Float?  
+  rainfall        Float?      
+  soilMoisture    Float?
+  recordedAt      DateTime  @default(now())
+
+  farm            Farm      @relation(fields: [farm_id], references: [id])
+  
+  @@index([farm_id, recordedAt]) 
 }
 

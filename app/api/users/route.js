@@ -1,7 +1,7 @@
 // Fetching all users and managing them
 
 import { getCurrentUser } from "@/lib/getCurrentUser";
-import db from "@/lib/prisma";
+import db from "@/lib/prisma.js";
 import { NextResponse } from "next/server";
 
 export async function GET(req) {

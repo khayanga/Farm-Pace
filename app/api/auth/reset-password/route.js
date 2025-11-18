@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import db from "@/lib/prisma";
+import db from "@/lib/prisma.js";
 
 export async function PATCH(req) {
   try {

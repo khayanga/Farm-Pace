@@ -1,6 +1,6 @@
 import SensorForm from "@/components/sensors/SensorForm";
 import SensorTable from "@/components/sensors/SensorTable";
-import db from "@/lib/prisma"; 
+import db from "@/lib/prisma.js"; 
 
 export const dynamic = "force-dynamic"; 
 

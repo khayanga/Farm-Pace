@@ -1,6 +1,6 @@
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { NextResponse } from "next/server";
-import db from "@/lib/prisma";
+import db from "@/lib/prisma.js";
 
 export async function POST(req) {
   try {

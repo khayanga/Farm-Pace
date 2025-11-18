@@ -1,6 +1,6 @@
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import bcrypt from "bcrypt";
-import db from "@/lib/prisma";
+import db from "@/lib/prisma.js";
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/nodemailer";
 import { welcomeEmailTemplate } from "@/emails/templates/welcome";
