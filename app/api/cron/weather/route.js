@@ -10,8 +10,20 @@ function parseGpsString(gps) {
   return Number.isNaN(lat) || Number.isNaN(lon) ? null : { lat, lon };
 }
 
-export async function GET() {
+export async function GET(req) {
   try {
+    const url = new URL(req.url);
+    const forceRun = url.searchParams.get("force") === "true";
+
+    if (forceRun) {
+      console.log("Manual cron triggered at", new Date());
+      return new Response(JSON.stringify({ success: true, triggeredAt: new Date() }), {
+        status: 200,
+      });
+    }
+
+    console.log("Scheduled cron triggered at", new Date());
+
     const farms = await db.farm.findMany({ select: { id: true, gps: true } });
 
     for (const farm of farms) {
@@ -21,15 +33,12 @@ export async function GET() {
 
         const { lat, lon } = coords;
 
-        const url =
-          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-          `&hourly=temperature_2m,relative_humidity_2m,precipitation,soil_moisture_0_to_10cm` +
-          `&timezone=UTC`;
+        const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,precipitation,soil_moisture_0_to_10cm&timezone=UTC`;
 
-        const res = await fetch(url);
-        if (!res.ok) continue;
+        const weatherRes = await fetch(apiUrl);
+        if (!weatherRes.ok) continue;
 
-        const data = await res.json();
+        const data = await weatherRes.json();
         const hourly = data.hourly;
 
         for (let i = 0; i < hourly.time.length; i++) {
