@@ -1,34 +1,86 @@
-import { startOfMonth, endOfMonth, startOfWeek, addDays } from "date-fns";
+
+import {
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  addDays,
+  isSameMonth,
+  isToday,
+} from "date-fns";
 import DayCell from "./DayCell";
 
-export default function CalendarGrid({ tasks, onDateClick, onTaskClick }) {
-  const today = new Date();
-  const monthStart = startOfMonth(today);
-  const monthEnd = endOfMonth(monthStart);
-
+export default function CalendarGrid({
+  currentDate,
+  tasks,
+  onDateClick,
+  onTaskClick,
+}) {
+  const monthStart = startOfMonth(currentDate);
   const gridStart = startOfWeek(monthStart, { weekStartsOn: 1 });
-  const gridDays = 42; 
+  const gridDays = 42;
+
+  const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
-    <div className="grid grid-cols-7 border rounded-lg overflow-hidden">
-      {Array.from({ length: gridDays }).map((_, i) => {
-        const day = addDays(gridStart, i);
+    <div className="space-y-4">
+      {/* Weekday Headers */}
+      <div
+        className="
+          grid grid-cols-7 gap-px 
+          rounded-lg overflow-hidden 
+          bg-border
+          dark:bg-border
+        "
+      >
+        {weekdays.map((day) => (
+          <div
+            key={day}
+            className="
+              bg-muted 
+              dark:bg-muted/40
+              p-3 text-center text-sm font-medium 
+              text-muted-foreground 
+              dark:text-muted-foreground
+            "
+          >
+            {day}
+          </div>
+        ))}
+      </div>
 
-        const dayTasks = tasks.filter((t) => {
-          if (!t || !t.startDate) return false;
-          return new Date(t.startDate).toDateString() === day.toDateString();
-        });
+      {/* Calendar Grid */}
+      <div
+        className="
+          grid grid-cols-7 gap-px 
+          rounded-lg overflow-hidden 
+          bg-border 
+          dark:bg-border 
+          shadow-sm
+        "
+      >
+        {Array.from({ length: gridDays }).map((_, i) => {
+          const day = addDays(gridStart, i);
+          const isCurrentMonth = isSameMonth(day, currentDate);
+          const isTodayDate = isToday(day);
 
-        return (
-          <DayCell
-            key={i}
-            day={day}
-            tasks={dayTasks}
-            onDateClick={() => onDateClick(day)}
-            onTaskClick={onTaskClick}
-          />
-        );
-      })}
+          const dayTasks = tasks.filter((t) => {
+            if (!t?.startDate) return false;
+            return new Date(t.startDate).toDateString() === day.toDateString();
+          });
+
+          return (
+            <DayCell
+              key={i}
+              day={day}
+              tasks={dayTasks}
+              isCurrentMonth={isCurrentMonth}
+              isToday={isTodayDate}
+              onDateClick={() => onDateClick(day)}
+              onTaskClick={onTaskClick}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }

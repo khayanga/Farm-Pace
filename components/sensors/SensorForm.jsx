@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function SensorForm({ farms }) {
   const [form, setForm] = useState({
@@ -10,16 +13,14 @@ export default function SensorForm({ farms }) {
     farmCode: "",
   });
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (key, value) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage(null);
 
     try {
       const res = await fetch("/api/sensors", {
@@ -37,7 +38,7 @@ export default function SensorForm({ farms }) {
       }
     } catch (err) {
       console.error(err);
-      toast.error(" Error creating sensor.");
+      toast.error("Error creating sensor.");
     } finally {
       setLoading(false);
     }
@@ -46,59 +47,48 @@ export default function SensorForm({ farms }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white dark:bg-gray-800 shadow rounded-2xl p-6 w-full max-w-md mx-auto"
+      className="bg-white dark:bg-gray-900 shadow rounded-2xl p-6 w-full max-w-md mx-auto space-y-4"
     >
-      <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
+      <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
         Add New Sensor
       </h2>
 
-      <div className="mb-3">
-        <label className="block text-sm mb-1 font-medium text-gray-600 dark:text-gray-300">
-          Description
-        </label>
-        <input
+      {/* Description */}
+      <div className="space-y-1">
+        <Label>Description</Label>
+        <Input
           type="text"
-          name="description"
-          value={form.description}
-          onChange={handleChange}
           placeholder="Optional description"
-          className="w-full border rounded-lg p-2 bg-transparent text-gray-800 dark:text-gray-100"
+          value={form.description}
+          onChange={(e) => handleChange("description", e.target.value)}
         />
       </div>
 
-      <div className="mb-3">
-        <label className="block text-sm mb-1 font-medium text-gray-600 dark:text-gray-300">
-          Farm
-        </label>
-        <select
-          name="farmCode"
+      {/* Farm Select */}
+      <div className="space-y-1">
+        <Label>Farm</Label>
+        <Select
           value={form.farmCode}
-          onChange={handleChange}
-          className="w-full border rounded-lg p-2 bg-transparent text-gray-800 dark:text-gray-100"
+          onValueChange={(value) => handleChange("farmCode", value)}
           required
         >
-          <option value="">Select farm</option>
-          {farms.map((farm) => (
-            <option key={farm.id} value={farm.code}>
-              {farm.name} ({farm.code})
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select farm" />
+          </SelectTrigger>
+          <SelectContent className="max-h-60 overflow-y-auto">
+            {farms.map((farm) => (
+              <SelectItem key={farm.id} value={farm.code}>
+                {farm.name} ({farm.code})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      <Button
-        type="submit"
-        disabled={loading}
-        
-      >
+      {/* Submit Button */}
+      <Button type="submit" className="w-full" disabled={loading}>
         {loading ? "Saving..." : "Add Sensor"}
       </Button>
-
-      {message && (
-        <p className="text-sm text-center mt-3 text-gray-700 dark:text-gray-200">
-          {message}
-        </p>
-      )}
     </form>
   );
 }

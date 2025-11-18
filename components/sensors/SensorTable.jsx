@@ -2,9 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 
 export default function SensorTable() {
-  const router = useRouter()
+  const router = useRouter();
   const [sensors, setSensors] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,42 +37,49 @@ export default function SensorTable() {
   if (loading) return <p>Loading sensors...</p>;
 
   return (
-    <div className="bg-white dark:bg-gray-800 shadow rounded-2xl p-6 mt-8">
-      <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
+    <div className="bg-white dark:bg-gray-900 shadow rounded-2xl p-6 mt-8">
+      <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">
         Registered Sensors
       </h2>
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm text-left">
-          <thead className="border-b text-gray-600 dark:text-gray-300">
-            <tr>
-              <th className="p-2">Code</th>
-              <th className="p-2">Farm Name</th>
-              <th className="p-2">Farm Code</th>
-              <th className="p-2">Location</th>
-              <th className="p-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sensors.map((s) => (
-              <tr key={s.id} className="border-t hover:bg-gray-50 dark:hover:bg-gray-700">
-                <td className="p-2 font-mono">{s.code}</td>
-                <td className="p-2">{s.farm?.name}</td>
-                <td className="p-2">{s.farm?.code}</td>
-                 <td className="p-2">{s.farm?.location}</td>
-                  <td className="p-2">
-                  <button
-                    onClick={() => router.push(`/sensors/${s.id}`)}
-                    className="bg-blue-600 text-white px-3 py-1 rounded"
-                  >
-                    View
-                  </button>
-                </td>
-                
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Code</TableHead>
+            <TableHead>Farm Name</TableHead>
+            <TableHead>Farm Code</TableHead>
+            <TableHead>Location</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody>
+          {sensors.map((s) => (
+            <TableRow
+              key={s.id}
+              className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <TableCell className="font-mono">{s.code}</TableCell>
+              <TableCell>{s.farm?.name || "-"}</TableCell>
+              <TableCell>{s.farm?.code || "-"}</TableCell>
+              <TableCell>{s.farm?.location || "-"}</TableCell>
+              <TableCell>
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={() => router.push(`/sensors/${s.id}`)}
+                >
+                  View
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+
+        {sensors.length === 0 && (
+          <TableCaption>No sensors registered yet.</TableCaption>
+        )}
+      </Table>
     </div>
   );
 }

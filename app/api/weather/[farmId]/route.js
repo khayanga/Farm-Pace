@@ -30,7 +30,7 @@ function findNearestIndex(times) {
 // ================= POST =================
 export async function POST(context) {
   try {
-    const { farmId } = context.params;
+    const { farmId } = await context.params;
 
     const farm = await db.farm.findUnique({
       where: { id: farmId },
@@ -98,7 +98,7 @@ export async function POST(context) {
 // ================= GET =================
 export async function GET(_, context) {
   try {
-    const { farmId } = context.params;
+    const { farmId } = await context.params;
 
     const readings = await db.weatherData.findMany({
       where: { farm_id: farmId },

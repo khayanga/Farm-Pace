@@ -102,7 +102,7 @@ export default function UsersPage() {
       <Card>
         <CardContent className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-col md:flex-wrap gap-4 ">
               <div className="flex-1 space-y-1">
                 <Label>Name</Label>
                 <Input
@@ -125,7 +125,7 @@ export default function UsersPage() {
               <div className="flex-1 space-y-1">
                 <Label>Role</Label>
                 <Select value={role} onValueChange={setRole}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -138,7 +138,7 @@ export default function UsersPage() {
               <div className="flex-1 space-y-1">
                 <Label>Farm Code</Label>
                 <Select value={farmCode} onValueChange={setFarmCode}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select a farm" />
                   </SelectTrigger>
                   <SelectContent>

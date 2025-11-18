@@ -1,6 +1,35 @@
-
 "use client";
+
 import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
 
 const categories = [
   "Vegetable",
@@ -18,13 +47,13 @@ export default function CropsPage() {
   const [farmId, setFarmId] = useState("");
   const [category, setCategory] = useState("");
   const [farms, setFarms] = useState([]);
+  const [open, setOpen] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [farmCrops, setFarmCrops] = useState([]);
   const [variety, setVariety] = useState("");
   const [seedlings, setSeedlings] = useState("");
 
-  // Fetch farms
   useEffect(() => {
     async function fetchFarms() {
       const res = await fetch("/api/farms");
@@ -44,18 +73,18 @@ export default function CropsPage() {
     fetchTemplates();
   }, []);
 
- useEffect(() => {
-  async function fetchAllFarmCrops() {
-    try {
-      const res = await fetch("/api/farm-crops");
-      const data = await res.json();
-      setFarmCrops(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Failed to fetch farm crops", err);
+  useEffect(() => {
+    async function fetchAllFarmCrops() {
+      try {
+        const res = await fetch("/api/farm-crops");
+        const data = await res.json();
+        setFarmCrops(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to fetch farm crops", err);
+      }
     }
-  }
-  fetchAllFarmCrops();
-}, []);
+    fetchAllFarmCrops();
+  }, []);
 
   // Create new crop template
   async function handleSubmit() {
@@ -76,19 +105,16 @@ export default function CropsPage() {
     setCategory("");
   }
 
-  // Open modal for a template
   function openModal(template) {
     setSelectedTemplate(template);
     setVariety("");
     setSeedlings("");
   }
 
-  // Close modal
   function closeModal() {
     setSelectedTemplate(null);
   }
 
-  // Register new farm crop
   async function handleRegisterFarmCrop() {
     if (!variety) return alert("Variety is required");
 
@@ -113,145 +139,171 @@ export default function CropsPage() {
   }
 
   return (
-    <div className="p-4">
-      {/* Add Crop Template Form */}
-      <div className="p-4 border rounded-md w-full max-w-md mb-6">
-        <h2 className="font-bold mb-2 text-lg">Add Crop Template</h2>
+    <div className="p-4 space-y-6">
 
-        <input
-          type="text"
-          placeholder="Crop Name"
-          className="border p-2 w-full mb-2"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+      <div className="flex justify-between">
+        <div>
+          <h1 className="text-md font-bold">Registered crop templates</h1>
+          <p className="text-sm font-light ">You can add your template </p>
+        </div>
+        
+         <Dialog open={open} onOpenChange={setOpen}>
+        {/* Trigger Button */}
+        <DialogTrigger asChild>
+          <Button className="mb-4">
+            <Plus className="w-5 h-5 text-white"/> 
+            Add Crop Template</Button>
+        </DialogTrigger>
 
-        <select
-          className="border p-2 w-full mb-2 rounded"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
-          <option value="">Select Category</option>
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
+        <DialogContent className="max-w-md w-full">
+          <DialogHeader>
+            <DialogTitle>Add Crop Template</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-1">
+            <Label>Crop Name</Label>
+            <Input
+              placeholder="Crop Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
 
-        <select
-          className="border p-2 w-full mb-2 rounded"
-          value={farmId}
-          onChange={(e) => setFarmId(e.target.value)}
-        >
-          <option value="">Select Farm</option>
-          {farms.map((farm) => (
-            <option key={farm.id} value={farm.id}>
-              {farm.name} ({farm.code})
-            </option>
-          ))}
-        </select>
+          <div className="space-y-1">
+            <Label>Category</Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-        <button
-          onClick={handleSubmit}
-          className="bg-green-500 text-white px-4 py-2 rounded mt-2"
-        >
-          Create Template
-        </button>
+          <div className="space-y-1">
+            <Label>Farm</Label>
+            <Select value={farmId} onValueChange={setFarmId}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Farm" />
+              </SelectTrigger>
+              <SelectContent className="max-h-60 overflow-y-auto">
+                {farms.map((farm) => (
+                  <SelectItem key={farm.id} value={farm.id}>
+                    {farm.name} ({farm.code})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button onClick={handleSubmit} className="w-full">
+            Create Template
+          </Button>
+        </DialogContent>
+      </Dialog>
       </div>
+     
 
       {/* Crop Templates Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {templates.map((template) => (
-          <div
+          <Card
             key={template.id}
-            className="border rounded-md p-4 shadow hover:shadow-lg cursor-pointer"
+            className="cursor-pointer hover:shadow-lg"
             onClick={() => openModal(template)}
           >
-            <h3 className="font-bold text-lg">{template.name}</h3>
-            <p className="text-sm text-gray-600">Category: {template.category}</p>
-            <p className="text-sm text-gray-600">
-              Farm: {template.farm?.name} ({template.farm?.code})
-            </p>
-          </div>
+            <CardContent className="space-y-1">
+              <h3 className="font-bold text-lg">{template.name}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Category: {template.category}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Farm: {template.farm?.name} ({template.farm?.code})
+              </p>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      {/* Farm Crops Table (always visible) */}
-      <div className="overflow-x-auto mb-6">
-        <h2 className="text-xl font-bold mb-2">Registered Farm Crops</h2>
-        <table className="w-full table-auto border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border px-2 py-1">Template</th>
-              <th className="border px-2 py-1">Variety</th>
-              <th className="border px-2 py-1">Seedlings</th>
-              <th className="border px-2 py-1">Planted At</th>
-              <th className="border px-2 py-1">Farm</th>
-            </tr>
-          </thead>
-          <tbody>
-            {farmCrops.map((crop) => (
-              <tr key={crop.id}>
-                <td className="border px-2 py-1">{crop.template?.name}</td>
-                <td className="border px-2 py-1">{crop.variety}</td>
-                <td className="border px-2 py-1">{crop.seedlings || "-"}</td>
-                <td className="border px-2 py-1">{new Date(crop.plantedAt).toLocaleDateString()}</td>
-                <td className="border px-2 py-1">{crop.farm?.code}</td>
-              </tr>
-            ))}
-            {farmCrops.length === 0 && (
-              <tr>
-                <td className="border px-2 py-1 text-center" colSpan={5}>
-                  No farm crops registered yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      {/* Farm Crops Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Registered Farm Crops</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Template</TableHead>
+                <TableHead>Variety</TableHead>
+                <TableHead>Seedlings</TableHead>
+                <TableHead>Planted At</TableHead>
+                <TableHead>Farm</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {farmCrops.map((crop) => (
+                <TableRow key={crop.id}>
+                  <TableCell>{crop.template?.name}</TableCell>
+                  <TableCell>{crop.variety}</TableCell>
+                  <TableCell>{crop.seedlings || "-"}</TableCell>
+                  <TableCell>
+                    {new Date(crop.plantedAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>{crop.farm?.code}</TableCell>
+                </TableRow>
+              ))}
+              {farmCrops.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center">
+                    No farm crops registered yet.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {/* Modal */}
       {selectedTemplate && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative">
-            <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
-              onClick={closeModal}
-            >
-              ✕
-            </button>
-            <h2 className="text-xl font-bold mb-4">
-              Register Farm Crop: {selectedTemplate.name}
-            </h2>
+        <Dialog
+          open={!!selectedTemplate}
+          onOpenChange={(val) => !val && closeModal()}
+        >
+          <DialogHeader>
+            <DialogTitle></DialogTitle>
+          </DialogHeader>
 
-            {/* Registration Form */}
-            <div className="flex gap-2 mb-4">
-              <input
-                type="text"
-                placeholder="Variety"
+          <DialogContent className="max-w-2xl w-full">
+            <h1>{selectedTemplate?.name} template</h1>
+
+            <div className="space-y-1">
+              <Label>Variety of template</Label>
+              <Input
+                placeholder="variety type"
                 value={variety}
                 onChange={(e) => setVariety(e.target.value)}
-                className="border p-2 flex-1"
               />
-              <input
+            </div>
+            <div className="space-y-1">
+              <Label>No of seedlings </Label>
+              <Input
+                placeholder="0"
                 type="number"
-                placeholder="Seedlings"
                 value={seedlings}
                 onChange={(e) => setSeedlings(e.target.value)}
-                className="border p-2 w-32"
               />
-              <button
-                onClick={handleRegisterFarmCrop}
-                className="bg-green-500 text-white px-4 py-2 rounded"
-              >
-                Add
-              </button>
             </div>
-          </div>
-        </div>
+
+            <Button onClick={handleRegisterFarmCrop}>Add</Button>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
 }
-

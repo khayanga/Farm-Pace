@@ -1,5 +1,15 @@
 "use client";
-
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -87,7 +97,7 @@ export default function AddTaskModal({ date, onClose, onAdded }) {
           farm_id: farmId,
           farmCrop_id: farmCropId || null,
           startDate: date.toISOString(),
-          assignedUsers: assignedUsers
+          assignedUsers: assignedUsers,
         }),
       });
 
@@ -109,133 +119,126 @@ export default function AddTaskModal({ date, onClose, onAdded }) {
     <Dialog open={!!date} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Task for {date.toDateString()}</DialogTitle>
+          <DialogTitle>Add Task for {date?.toDateString()}</DialogTitle>
         </DialogHeader>
 
-               <div className="space-y-4 mt-3">
-          {/* Task Title */}
-          <div>
-            <label htmlFor="taskTitle" className="block font-medium mb-1">
-              Task Title <span className="text-red-500">*</span>
-            </label>
-            <input
+        <div className="space-y-4 mt-3">
+          <div className="space-y-1">
+            <Label htmlFor="taskTitle">Task Title</Label>
+            <Input
               id="taskTitle"
-              className="border p-2 w-full rounded"
               placeholder="Enter task title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
 
-          {/* Description */}
-          <div>
-            <label htmlFor="taskDescription" className="block font-medium mb-1">
-              Description
-            </label>
-            <textarea
+          <div className="space-y-1">
+            <Label htmlFor="taskDescription">Description</Label>
+            <Textarea
               id="taskDescription"
-              className="border p-2 w-full rounded"
               placeholder="Enter task description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
 
-          {/* Task Type */}
-          <div>
-            <label htmlFor="taskType" className="block font-medium mb-1">
-              Task Type <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="taskType"
-              className="border p-2 w-full rounded"
-              value={taskType}
-              onChange={(e) => setTaskType(e.target.value)}
-            >
-              <option value="">Select Task Type</option>
-              {TASK_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t.replace("_", " ")}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Farm Dropdown */}
-          <div>
-            <label htmlFor="farmSelect" className="block font-medium mb-1">
-              Farm <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="farmSelect"
-              className="border p-2 w-full rounded"
-              value={farmId}
-              onChange={(e) => setFarmId(e.target.value)}
-            >
-              <option value="">Select Farm</option>
-              {farms.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.code} - {f.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Farm Crop Dropdown */}
-          {farmCrops.length > 0 && (
-            <div>
-              <label htmlFor="farmCropSelect" className="block font-medium mb-1">
-                Farm Crop (optional)
-              </label>
-              <select
-                id="farmCropSelect"
-                className="border p-2 w-full rounded"
-                value={farmCropId}
-                onChange={(e) => setFarmCropId(e.target.value)}
-              >
-                <option value="">Select Crop</option>
-                {farmCrops.map((crop) => (
-                  <option key={crop.id} value={crop.id}>
-                    {crop.template?.name} ({crop.variety})
-                  </option>
+          <div className="space-y-1">
+            <Label htmlFor="taskType">Task Type</Label>
+            <Select value={taskType} onValueChange={setTaskType}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Task Type" />
+              </SelectTrigger>
+              <SelectContent>
+                {TASK_TYPES.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {t.replace("_", " ")}
+                  </SelectItem>
                 ))}
-              </select>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="farmSelect">Farm</Label>
+            <Select value={farmId} onValueChange={setFarmId}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Farm" />
+              </SelectTrigger>
+              <SelectContent className="max-h-60 overflow-y-auto">
+                {farms.map((f) => (
+                  <SelectItem key={f.id} value={f.id}>
+                    {f.code} - {f.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Farm Crop */}
+          {farmCrops.length > 0 && (
+            <div className="space-y-1">
+              <Label htmlFor="farmCropSelect">Farm Crop (optional)</Label>
+              <Select value={farmCropId} onValueChange={setFarmCropId}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select Crop" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60 overflow-y-auto">
+                  {farmCrops.map((crop) => (
+                    <SelectItem key={crop.id} value={crop.id}>
+                      {crop.template?.name} ({crop.variety})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
 
-          {/* Assigned Users */}
           {farmUsers.length > 0 && (
-            <div>
-              <label htmlFor="assignedUsers" className="block font-medium mb-1">
-                Assign Users
-              </label>
-              <select
-                id="assignedUsers"
+            <div className="space-y-1">
+              <Label htmlFor="assignedUsers">Assign Users</Label>
+              {/* <Select  id="assignedUsers"
                 multiple
                 value={assignedUsers}
                 onChange={(e) =>
                   setAssignedUsers(
                     Array.from(e.target.selectedOptions, (o) => o.value)
                   )
-                }
-                className="border p-2 w-full rounded"
+                }>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select Users" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60 overflow-y-auto">
+                  {farmUsers.map((u, idx) => (
+                    <SelectItem key={u.userId ?? idx} value={u.userId}>
+                      {u.name} ({u.globalRole})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select> */}
+
+              <Select
+                value={assignedUsers[0] || ""}
+                onValueChange={(val) => setAssignedUsers([val])}
               >
-                {farmUsers.map((u, idx) => (
-                  <option key={u.userId ?? idx} value={u.userId}>
-                    {u.name} ({u.globalRole})
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select User" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60 overflow-y-auto">
+                  {farmUsers.map((u) => (
+                    <SelectItem key={u.userId} value={u.userId}>
+                      {u.name} ({u.globalRole})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
         </div>
-        <button
-          onClick={handleSave}
-          disabled={loading}
-          className="mt-4 bg-green-600 text-white px-4 py-2 rounded w-full"
-        >
+
+        <Button onClick={handleSave} disabled={loading} className="mt-4 w-full">
           {loading ? "Saving..." : "Save Task"}
-        </button>
+        </Button>
       </DialogContent>
     </Dialog>
   );

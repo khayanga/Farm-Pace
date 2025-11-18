@@ -3,12 +3,14 @@ import db from "@/lib/prisma.js";
 import { NextResponse } from "next/server";
 
 const TASK_COLORS = {
-  fertilizer: "#7C4A21",
-  foliar_fertilizer: "#A8D5BA",
-  pesticide: "red",
-  fungicide: "#FDBA21",
-  irrigation: "#E2F1F4",
+  fertilizer: "#0E7C7B",
+  foliar_fertilizer: "#94FBAB",
+  pesticide: "#F55536",
+  fungicide: "#FABC3C",
+  irrigation: "#08605F",
+  harvesting:"#EEF36A"
 };
+
 
 export async function POST(req) {
   try {

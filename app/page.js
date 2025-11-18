@@ -6,6 +6,7 @@ import Decoration from "@/components/dashboard/Decoration";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
+import MainCalendar from "@/components/calendar/MainCalendar";
 
 
 export default function HomePage() {
@@ -43,6 +44,10 @@ export default function HomePage() {
 
         <Cards />
         
+      </section>
+      <section>
+        <MainCalendar/>
+
       </section>
 
       <section>
