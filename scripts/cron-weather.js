@@ -11,18 +11,36 @@ function parseGpsString(gps) {
   return Number.isNaN(lat) || Number.isNaN(lon) ? null : { lat, lon };
 }
 
+function getLast12HoursRange() {
+  const end = new Date();
+  const start = new Date(end.getTime() - 12 * 60 * 60 * 1000); 
+  return {
+    startDate: start.toISOString().split("T")[0],
+    endDate: end.toISOString().split("T")[0],
+  };
+}
+
 async function fetchWeatherForFarm(farm) {
   const coords = parseGpsString(farm.gps);
   if (!coords) return;
 
-  const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&hourly=temperature_2m,relative_humidity_2m,precipitation,soil_moisture_0_to_10cm&timezone=UTC`);
-  if (!res.ok) throw new Error(`Failed to fetch weather for farm ${farm.id}`);
-  const data = await res.json();
+  const { startDate, endDate } = getLast12HoursRange();
 
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}` +
+              `&hourly=temperature_2m,relative_humidity_2m,precipitation,soil_moisture_0_to_10cm` +
+              `&timezone=UTC&start_date=${startDate}&end_date=${endDate}`;
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch weather for farm ${farm.id}`);
+
+  const data = await res.json();
   let newRecords = 0;
 
   for (let i = 0; i < data.hourly.time.length; i++) {
     const ts = new Date(data.hourly.time[i]);
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+    if (ts < twelveHoursAgo) continue; 
+
     const exists = await db.weatherData.findFirst({ where: { farm_id: farm.id, recordedAt: ts } });
     if (exists) continue;
 
@@ -57,4 +75,3 @@ async function runCron() {
 }
 
 runCron();
-
