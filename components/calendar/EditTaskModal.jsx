@@ -46,6 +46,7 @@ export default function EditTaskModal({
     endDate: "",
     farmCrop_id: null,
     farmId: "",
+    status: "pending",
     assignedUsers: [],
   });
 
@@ -60,6 +61,7 @@ export default function EditTaskModal({
         startDate: task.startDate ? task.startDate.split("T")[0] : "",
         endDate: task.endDate ? task.endDate.split("T")[0] : "",
         farmId: task.farm_id || "",
+        status: task.status || "pending",
         assignedUsers:
           task.assignedTo?.map((a) => a.user?.userId).filter(Boolean) || [],
       });
@@ -137,6 +139,25 @@ export default function EditTaskModal({
             />
           </div>
 
+          <div className="space-y-1">
+            <Label>Status</Label>
+            <Select
+              value={form.status}
+              onValueChange={(value) => handleChange("status", value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Status" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="skipped">Skipped</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Task Type */}
           <div className="space-y-1">
             <Label>Task Type</Label>
@@ -157,39 +178,6 @@ export default function EditTaskModal({
             </Select>
           </div>
 
-          {/* {farmUsers.length > 0 && (
-            <div className="space-y-1">
-              <Label>Assign Users</Label>
-              <Select
-                multiple
-                value={form.assignedUsers}
-                onValueChange={(values) =>
-                  handleChange("assignedUsers", values)
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue>
-                    {form.assignedUsers.length > 0
-                      ? form.assignedUsers
-                          .map(
-                            (id) => farmUsers.find((u) => u.userId === id)?.name
-                          )
-                          .filter(Boolean)
-                          .join(", ")
-                      : "Select Users"}
-                  </SelectValue>
-                </SelectTrigger>
-
-                <SelectContent className="max-h-60 overflow-y-auto">
-                  {farmUsers.map((u) => (
-                    <SelectItem key={u.userId} value={u.userId}>
-                      {u.name} ({u.globalRole})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )} */}
           {farmUsers.length > 0 && (
             <div className="space-y-1">
               <Label>Assign User</Label>

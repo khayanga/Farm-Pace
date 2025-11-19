@@ -17,6 +17,8 @@ import {
   Sprout,
   AlignLeft,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import AddNotes from "./AddNotes";
 
 export default function ViewTaskModal({
   open,
@@ -26,8 +28,6 @@ export default function ViewTaskModal({
   onDelete,
   userRole,
 }) {
-  if (!task) return null;
-
   const colorMap = {
     fertilizer: "bg-[#7C4A21]",
     foliar_fertilizer: "bg-[#A8D5BA] text-black",
@@ -36,6 +36,47 @@ export default function ViewTaskModal({
     irrigation: "bg-[#E2F1F4] text-black",
     harvesting: "bg-lime-100  text-primary",
   };
+
+  const statusStyles = {
+    pending: "bg-green-100 text-green-700 border-green-300",
+    in_progress: "bg-blue-100 text-blue-700 border-blue-300",
+    completed: "bg-amber-100 text-amber-700 border-amber-300",
+    skipped: "bg-red-100 text-red-700 border-red-300",
+  };
+
+  const statusDot = {
+    pending: "bg-green-500",
+    in_progress: "bg-blue-500",
+    completed: "bg-amber-600",
+    skipped: "bg-red-500",
+  };
+
+  const [notes, setNotes] = useState(task?.notes || []);
+
+  const [openNoteModal, setOpenNoteModal] = useState(false);
+
+  useEffect(() => {
+  if (open && task?.notes) {
+    setNotes(task.notes);
+  }
+}, [open, task]);
+
+const handleNoteAdded = (newNote) => {
+  setNotes((prev) => [...prev, newNote]);
+};
+
+const handleDelete = () => {
+  if (!task) return;
+
+  const confirmDelete = confirm(
+    `Are you sure you want to delete the task "${task.title}"?`
+  );
+  if (!confirmDelete) return;
+
+  onDelete(task.id); 
+  onClose(); 
+};
+  if (!task) return null;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -46,8 +87,16 @@ export default function ViewTaskModal({
               <span>{task.title}</span>
             </span>
 
-            <Badge variant="outline" className=" px-3 py-1 text-xs">
-              {task.status}
+            <Badge
+              variant="outline"
+              className={`px-3 py-1 text-xs flex items-center gap-2 rounded-full ${
+                statusStyles[task.status]
+              }`}
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${statusDot[task.status]}`}
+              ></span>
+              {task.status.replace("_", " ")}
             </Badge>
           </DialogTitle>
         </DialogHeader>
@@ -120,17 +169,64 @@ export default function ViewTaskModal({
             </div>
             <p>{task.description || "No description provided"}</p>
           </div>
+
+          
         </div>
+        <div className="mt-2 p-3">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-md font-semibold">Notes</h3>
+
+              {["admin", "agronomist"].includes(userRole) && (
+                <Button size="sm" onClick={() => setOpenNoteModal(true)}>
+                  Add Note
+                </Button>
+              )}
+            </div>
+
+            {notes.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No notes added yet.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {notes.map((note) => (
+                  <div
+                    key={note.id}
+                    className="border p-3 rounded-lg bg-muted/30"
+                  >
+                    <p className="text-sm">{note.note}</p>
+
+                    {note.imageUrl && (
+                      <img
+                        src={note.imageUrl}
+                        alt="note"
+                        className="mt-2 rounded-md w-32 h-32 object-cover"
+                      />
+                    )}
+
+                    <p className="text-xs text-muted-foreground mt-1">
+                      By {note.user?.name || "Unknown"}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <AddNotes
+              open={openNoteModal}
+              onClose={() => setOpenNoteModal(false)}
+              taskId={task.id}
+              onNoteAdded={handleNoteAdded}
+            />
+          </div>
 
         <DialogFooter className="mt-6 flex justify-between sticky bottom-0 bg-background pt-3">
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
+          
 
           <div className="flex gap-2">
             <Button onClick={() => onEdit(task)}>Edit</Button>
             {userRole === "admin" && (
-              <Button variant="destructive" onClick={() => onDelete(task.id)}>
+              <Button variant="destructive" onClick={handleDelete}>
                 Delete
               </Button>
             )}

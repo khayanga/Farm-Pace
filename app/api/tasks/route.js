@@ -128,7 +128,11 @@ export async function GET(req) {
         farmCrop: true,
         assignedTo: { include: { user: true } },
         creator: true,
-        notes: true,
+        notes: {
+      include: {
+        user: true,
+      },
+    },
       },
       orderBy: { startDate: "asc" },
     });

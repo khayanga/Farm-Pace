@@ -27,7 +27,7 @@ function findNearestIndex(times) {
   return bestIdx;
 }
 
-// ================= POST =================
+
 export async function POST(context) {
   try {
     const { farmId } = await context.params;
@@ -95,10 +95,23 @@ export async function POST(context) {
   }
 }
 
-// ================= GET =================
 export async function GET(_, context) {
   try {
     const { farmId } = await context.params;
+
+    const hasAccess = await db.farmUser.findFirst({
+      where: {
+        farm_id: farmId,
+        
+      },
+    });
+
+    if (!hasAccess && user.role !== "admin") {
+      return NextResponse.json(
+        { error: "You do not have access to this farm" },
+        { status: 403 }
+      );
+    }
 
     const readings = await db.weatherData.findMany({
       where: { farm_id: farmId },

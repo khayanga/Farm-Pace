@@ -1,4 +1,3 @@
-// Fetching all users and managing them
 
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import db from "@/lib/prisma.js";

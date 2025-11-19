@@ -21,6 +21,7 @@ enum TaskStatus {
   pending
   completed
   skipped
+  in_progress
 }
 
 enum Role {

@@ -102,7 +102,7 @@ export default function UsersPage() {
       <Card>
         <CardContent className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex flex-col md:flex-wrap gap-4 ">
+            <div className="flex flex-row md:flex-wrap gap-4 ">
               <div className="flex-1 space-y-1">
                 <Label>Name</Label>
                 <Input

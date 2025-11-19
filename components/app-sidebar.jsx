@@ -23,7 +23,7 @@ export function AppSidebar() {
   return (
     <Sidebar className="shadow-md">
       <SidebarHeader>
-        <h1 className="text-primary text-xl font-medium">LOGO</h1>
+        <h1 className="text-primary text-xl font-medium ml-3">SHAMBANY</h1>
       </SidebarHeader>
       <SidebarContent className="overflow-y-auto">
         <SidebarGroup>

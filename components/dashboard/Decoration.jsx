@@ -4,7 +4,7 @@ const Decoration = () => {
   return (
     <>
       {/* Soft muted gradient background */}
-      <div className="absolute bg-linear-to-br from-lime-400 to-lime-800 inset-0 -z-10 rounded-xl"></div>
+      <div className="absolute bg-linear-to-br from-green-400 to-green-800 inset-0 -z-10 rounded-xl"></div>
 
       {/* Soft ambient light circles */}
       <div className="absolute inset-0 overflow-hidden -z-5">
