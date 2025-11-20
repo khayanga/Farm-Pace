@@ -1,67 +1,11 @@
-// 'use client'
-// import { useEffect, useState } from "react";
-
-// import AddTaskModal from "./AddTaskModal";
-// import ViewTaskModal from "./ViewTaskModal";
-// import EditTaskModal from "./EditTaskModal";
-// import CalendarComponent from "./CalendarComponent.";
-
-// const MainCalendar = () => {
-//     const [tasks, setTasks] = useState([]);
-//     const [selectedDate, setSelectedDate] = useState(null);
-//     const [selectedTask, setSelectedTask] = useState(null);
-//     const [viewTaskModal, setViewTaskModal] = useState(false);
-//     const [editOpen, setEditOpen] = useState(false);
-//     const [currentUser, setCurrentUser] = useState(null);
-
-//     return (
-//         <div className="p-2">
-//             <h1 className="text-2xl text-primary font-bold">Farm Calendar</h1>
-//             <p className="text-sm font-light tracking-wider mb-4">
-//                 Manage and schedule your daily activities down below seamlessly
-//             </p>
-
-//             <CalendarComponent
-//                 tasks={tasks}
-//                 onDateClick={(date) => setSelectedDate(date)}
-//                 onTaskClick={handleTaskClick}
-//             />
-
-//             <AddTaskModal
-//                 date={selectedDate}
-//                 onClose={() => setSelectedDate(null)}
-//                 onAdded={(newTask) => setTasks([...tasks, newTask])}
-//             />
-
-//             <ViewTaskModal
-//                 open={viewTaskModal}
-//                 task={selectedTask}
-//                 onClose={handleTaskClose}
-//                 userRole={currentUser?.role}
-//                 onEdit={() => setEditOpen(true)}
-//                 onDelete={(id) => console.log("Delete task", id)}
-//             />
-
-//             <EditTaskModal
-//                 task={selectedTask}
-//                 open={editOpen}
-//                 onClose={() => setEditOpen(false)}
-//                 setTasks={setTasks}
-//                 refresh={fetchTasks}
-//             />
-//         </div>
-//     );
-// }
-
-// export default MainCalendar;
-
 "use client";
+
 import { useEffect, useState } from "react";
 
 import AddTaskModal from "./AddTaskModal";
 import ViewTaskModal from "./ViewTaskModal";
 import EditTaskModal from "./EditTaskModal";
-import CalendarComponent from "./CalendarComponent.";
+import CalendarComponent from "./CalendarComponent";
 
 const MainCalendar = () => {
   const [tasks, setTasks] = useState([]);
@@ -71,28 +15,47 @@ const MainCalendar = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
+  // Fetch current user
   useEffect(() => {
     async function fetchUser() {
-      const res = await fetch("/api/auth/user");
-      if (!res.ok) return;
+      try {
+        const res = await fetch("/api/auth/user");
+        if (!res.ok) throw new Error("Failed to fetch user");
 
-      const data = await res.json();
-      setCurrentUser(data.user);
+        const data = await res.json();
+        setCurrentUser(data.user);
+      } catch (err) {
+        console.error("Error fetching user:", err);
+      }
     }
 
     fetchUser();
   }, []);
 
-  
+  useEffect(() => {
   async function fetchTasks() {
-    const res = await fetch("/api/tasks");
-    const data = await res.json();
-    setTasks(data);
+    if (!currentUser || !currentUser.farm?.id) return;
+
+    try {
+      const farmId = currentUser.farm.id; 
+      const res = await fetch(`/api/tasks?farmId=${farmId}`);
+      const data = await res.json();
+
+      if (!Array.isArray(data)) {
+        console.error("Tasks API did not return an array:", data);
+        setTasks([]);
+      } else {
+        setTasks(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch tasks:", err);
+      setTasks([]);
+    }
   }
 
-  useEffect(() => {
-    fetchTasks();
-  }, []);
+  fetchTasks();
+}, [currentUser]);
+
 
   useEffect(() => {
     if (selectedTask) {
@@ -112,15 +75,18 @@ const MainCalendar = () => {
   }
 
   async function handleTaskDelete(id) {
-  const res = await fetch(`/api/tasks/${id}`, { method: "DELETE" });
-  if (!res.ok) {
-    console.error("Failed to delete task");
-    return;
+    try {
+      const res = await fetch(`/api/tasks/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete task");
+
+      setTasks((prev) => prev.filter((t) => t.id !== id));
+      setSelectedTask(null);
+      setViewTaskModal(false);
+    } catch (err) {
+      console.error(err);
+    }
   }
-  setTasks((prev) => prev.filter((t) => t.id !== id));
-  setSelectedTask(null);
-  setViewTaskModal(false);
-}
+
   if (!currentUser) {
     return (
       <div className="p-2">
@@ -137,7 +103,7 @@ const MainCalendar = () => {
       </p>
 
       <CalendarComponent
-        tasks={tasks}
+        tasks={Array.isArray(tasks) ? tasks : []} // safety check
         onDateClick={(date) => setSelectedDate(date)}
         onTaskClick={handleTaskClick}
       />
@@ -162,7 +128,13 @@ const MainCalendar = () => {
         open={editOpen}
         onClose={() => setEditOpen(false)}
         setTasks={setTasks}
-        refresh={fetchTasks}
+        refresh={() => {
+          // refetch tasks safely
+          if (currentUser?.farmId) fetch(`/api/tasks?farmId=${currentUser.farmId}`)
+            .then(res => res.json())
+            .then(data => Array.isArray(data) ? setTasks(data) : setTasks([]))
+            .catch(err => console.error(err));
+        }}
       />
     </div>
   );

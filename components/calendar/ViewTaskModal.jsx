@@ -56,26 +56,26 @@ export default function ViewTaskModal({
   const [openNoteModal, setOpenNoteModal] = useState(false);
 
   useEffect(() => {
-  if (open && task?.notes) {
-    setNotes(task.notes);
-  }
-}, [open, task]);
+    if (open && task?.notes) {
+      setNotes(task.notes);
+    }
+  }, [open, task]);
 
-const handleNoteAdded = (newNote) => {
-  setNotes((prev) => [...prev, newNote]);
-};
+  const handleNoteAdded = (newNote) => {
+    setNotes((prev) => [...prev, newNote]);
+  };
 
-const handleDelete = () => {
-  if (!task) return;
+  const handleDelete = () => {
+    if (!task) return;
 
-  const confirmDelete = confirm(
-    `Are you sure you want to delete the task "${task.title}"?`
-  );
-  if (!confirmDelete) return;
+    const confirmDelete = confirm(
+      `Are you sure you want to delete the task "${task.title}"?`
+    );
+    if (!confirmDelete) return;
 
-  onDelete(task.id); 
-  onClose(); 
-};
+    onDelete(task.id);
+    onClose();
+  };
   if (!task) return null;
 
   return (
@@ -101,7 +101,6 @@ const handleDelete = () => {
           </DialogTitle>
         </DialogHeader>
 
-        {/* Scrollable Content */}
         <div className="mt-2 grid grid-cols-2 gap-4 text-sm">
           {/* Start Date */}
           <div className="p-3 rounded-xl  flex flex-col gap-1">
@@ -169,60 +168,54 @@ const handleDelete = () => {
             </div>
             <p>{task.description || "No description provided"}</p>
           </div>
-
-          
         </div>
         <div className="mt-2 p-3">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-md font-semibold">Notes</h3>
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-md font-semibold">Notes</h3>
 
-              {["admin", "agronomist"].includes(userRole) && (
-                <Button size="sm" onClick={() => setOpenNoteModal(true)}>
-                  Add Note
-                </Button>
-              )}
-            </div>
-
-            {notes.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No notes added yet.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {notes.map((note) => (
-                  <div
-                    key={note.id}
-                    className="border p-3 rounded-lg bg-muted/30"
-                  >
-                    <p className="text-sm">{note.note}</p>
-
-                    {note.imageUrl && (
-                      <img
-                        src={note.imageUrl}
-                        alt="note"
-                        className="mt-2 rounded-md w-32 h-32 object-cover"
-                      />
-                    )}
-
-                    <p className="text-xs text-muted-foreground mt-1">
-                      By {note.user?.name || "Unknown"}
-                    </p>
-                  </div>
-                ))}
-              </div>
+            {["admin", "agronomist"].includes(userRole) && (
+              <Button size="sm" onClick={() => setOpenNoteModal(true)}>
+                Add Note
+              </Button>
             )}
-
-            <AddNotes
-              open={openNoteModal}
-              onClose={() => setOpenNoteModal(false)}
-              taskId={task.id}
-              onNoteAdded={handleNoteAdded}
-            />
           </div>
 
-        <DialogFooter className="mt-6 flex justify-between sticky bottom-0 bg-background pt-3">
-          
+          {notes.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No notes added yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {notes.map((note) => (
+                <div
+                  key={note.id}
+                  className="border p-3 rounded-lg bg-muted/30"
+                >
+                  <p className="text-sm">{note.note}</p>
 
+                  {note.imageUrl && (
+                    <img
+                      src={note.imageUrl}
+                      alt="note"
+                      className="mt-2 rounded-md w-32 h-32 object-cover"
+                    />
+                  )}
+
+                  <p className="text-xs text-muted-foreground mt-1">
+                    By {note.user?.name || "Unknown"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <AddNotes
+            open={openNoteModal}
+            onClose={() => setOpenNoteModal(false)}
+            taskId={task.id}
+            onNoteAdded={handleNoteAdded}
+          />
+        </div>
+
+        <DialogFooter className="mt-6 flex justify-between sticky bottom-0 bg-background pt-3">
           <div className="flex gap-2">
             <Button onClick={() => onEdit(task)}>Edit</Button>
             {userRole === "admin" && (

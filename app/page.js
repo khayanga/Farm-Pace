@@ -11,14 +11,35 @@ import MainCalendar from "@/components/calendar/MainCalendar";
 
 export default function HomePage() {
   const { data: session, status } = useSession();
-  const [farms, setFarms] = useState([]);
-  const [name, setName] = useState("");
-  const [gps, setGps] = useState("");
-  const [location, setLocation] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  
 
- 
+ const slides = [
+    {
+      title: "Crop planning & protection",
+      description:
+        "Advisory - Smart pest and disease monitoring helps farmers reduce yield losses, optimize input use, and plan production cycles for higher, safer, and more predictable harvests.",
+    },
+    {
+      title: "Farm monitoring",
+      description:
+        "Advisory - Real-time monitoring of soil, climate and input use is critical when farmers face 30% yield losses from pests and disease in tropical conditions.",
+    },
+    {
+      title: "Food Safety",
+      description:
+        "Warning - In Kenya, 46% of food samples contain pesticide residues, with 11% exceeding safety limits — areas of high use show cancer rates above 2,000 per 100,000 people.",
+    },
+  ];
+
+
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+ useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 4000); 
+    return () => clearInterval(interval);
+  }, []);
   
  
 
@@ -30,21 +51,44 @@ export default function HomePage() {
       </p>
     );
 
+    
   return (
     <main className=" px-4 flex min-h-screen w-full flex-col gap-4  ">
-      <section className=" md:py-8 py-4 px-4 relative overflow-hidden rounded-md">
+      <section className=" md:py-8 py-4 px-4 relative overflow-hidden rounded-md flex flex-col md:flex-row gap-8 ">
         <Decoration />
-        <h1 className="dark:text-gray-800 text-white md:text-2xl tracking-wide font-bold relative z-20">
-          Welcome back {session.user.name}
-        </h1>
+        {slides.map((slide, index) => (
+        <div
+          key={index}
+          className={`transition-opacity duration-1000 ease-in-out ${
+            index === currentSlide ? "opacity-100" : "opacity-0 absolute"
+          }`}
+        >
+          <h1 className=" text-white md:text-2xl tracking-wide font-bold relative z-20">
+            {slide.title}
+          </h1>
+          <p className=" text-white mb-3 relative z-20">
+            {slide.description}
+          </p>
 
-        <p className="dark:text-gray-700 text-white  mb-3 relative z-20">
-          This is your starting point for managing and monitoring your farm.
-        </p>
+          
+        </div>
+      ))}
+        
 
-        <Cards />
+       
         
       </section>
+      <div className="flex justify-center mt-4 gap-2">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-3 h-3 rounded-full transition-all ${
+                currentSlide === index ? "bg-primary " : "bg-gray-400"
+              }`}
+            />
+          ))}
+        </div>
       <section>
         <MainCalendar/>
 

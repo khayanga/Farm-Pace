@@ -1,4 +1,6 @@
 "use client";
+import Cards from "@/components/dashboard/Cards";
+import Decoration from "@/components/dashboard/Decoration";
 import Farms from "@/components/tables/Farms";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -126,6 +128,19 @@ const Page = () => {
 
   return (
     <div className="px-4 w-full">
+      <section className=" md:py-8 py-4 px-4 relative overflow-hidden rounded-md">
+              <Decoration />
+              <h1 className="dark:text-gray-800 text-white md:text-2xl tracking-wide font-bold relative z-20">
+                Welcome back {session.user.name}
+              </h1>
+      
+              <p className="dark:text-gray-700 text-white  mb-3 relative z-20">
+                This is your starting point for managing and monitoring your farm.
+              </p>
+      
+              <Cards />
+              
+            </section>
       <div className="flex flex-row justify-between p-2 w-full">
         <div className="flex flex-row items-center gap-6">
           <h1 className="font-bold tracking-wider">Farm Management</h1>

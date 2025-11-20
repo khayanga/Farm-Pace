@@ -40,6 +40,15 @@ enum SensorMetric {
   co2
 }
 
+enum RecurrenceFrequency {
+  daily
+  weekly
+  monthly
+  yearly
+  custom
+}
+
+
 model User {
   user_id            String     @id @default(uuid())
   name               String?
@@ -54,6 +63,8 @@ model User {
   tasksCreated       Task[]        @relation("TasksCreatedBy")
   taskAssignments    TaskAssignment[]
   taskNotes          TaskNote[]
+  recurringTasksCreated  RecurringTask[] @relation("RecurringTasksCreatedBy")
+
 }
 
 model Farm {
@@ -71,6 +82,7 @@ model Farm {
   sensors     Sensor[]
   tasks       Task[]
   weatherData WeatherData[]
+  recurringTasks   RecurringTask[]
   templates   CropTemplate[] @relation("FarmToTemplate")
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -117,6 +129,7 @@ model FarmCrop {
   harvests    Harvest[]
   sensors     SensorData[]
   tasks       Task[]
+  recurringTasks RecurringTask[]
 }
 
 model CropLog {
@@ -250,3 +263,36 @@ model WeatherData {
   @@index([farm_id, recordedAt]) 
 }
 
+
+model RecurringTask {
+  id            Int                 @id @default(autoincrement())
+  farm_id       String
+  farmCrop_id   Int?
+  title         String
+  description   String?
+  taskType      TaskType
+  color         String?
+  frequency     RecurrenceFrequency
+  interval      Int                 @default(1) 
+  startDate     DateTime
+  time          String              
+  endDate       DateTime? 
+  createdBy     String
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  farm          Farm                @relation(fields: [farm_id], references: [id])
+  farmCrop      FarmCrop?           @relation(fields: [farmCrop_id], references: [id])
+  creator       User                @relation("RecurringTasksCreatedBy", fields: [createdBy], references: [user_id])
+  exceptions    RecurringTaskException[]
+}
+
+model RecurringTaskException {
+  id               Int      @id @default(autoincrement())
+  recurringTask_id Int
+  date             DateTime
+  isSkipped        Boolean  @default(false)
+  modifiedTitle    String?
+  modifiedTime     String?
+  modifiedDate     DateTime?
+  recurringTask    RecurringTask @relation(fields: [recurringTask_id], references: [id])
+}

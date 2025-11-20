@@ -37,7 +37,7 @@ const Navbar = () => {
           
           <Link href="/" className="flex items-center gap-2 text-primary font-semibold text-lg">
           {/* <Scale className="h-6 w-6" /> */}
-          <span className="text-primary">Farm Pace dashboard</span>
+          <span className="text-primary">Shamban.y</span>
         </Link>
         
         </div>
