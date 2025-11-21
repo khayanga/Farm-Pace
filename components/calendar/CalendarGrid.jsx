@@ -15,18 +15,18 @@ export default function CalendarGrid({
 }) {
   const monthStart = startOfMonth(currentDate);
   const gridStart = startOfWeek(monthStart, { weekStartsOn: 1 });
-  const gridDays = 42; // 6 weeks view
+  const gridDays = 35; 
 
   const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Weekday Headers */}
       <div className="grid grid-cols-7 gap-px rounded-lg overflow-hidden bg-border dark:bg-border">
         {weekdays.map((day) => (
           <div
             key={day}
-            className="bg-muted dark:bg-muted/40 p-3 text-center text-sm font-medium text-muted-foreground dark:text-muted-foreground"
+            className="bg-muted dark:bg-muted/40 p-2 text-center text-sm font-medium text-muted-foreground dark:text-muted-foreground"
           >
             {day}
           </div>

@@ -14,9 +14,9 @@ export default function DayCell({
   return (
     <div
       className={`
-        min-h-[120px] p-2 relative cursor-pointer transition-colors 
+        min-h-[100px] p-1 relative cursor-pointer transition-colors 
         ${!isCurrentMonth 
-          ? "bg-lime-100 text-muted-foreground dark:bg-lime-100/20 dark:text-muted-foreground" 
+          ? "bg-teal-100 text-muted-foreground dark:bg-teal-100/20 dark:text-muted-foreground" 
           : "bg-card dark:bg-card dark:hover:bg-accent"
         }
         ${isToday ? "bg-accent/50 dark:bg-accent/30" : ""}

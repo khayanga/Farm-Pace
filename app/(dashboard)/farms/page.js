@@ -21,6 +21,22 @@ const Page = () => {
   const [error, setError] = useState("");
 
   const [editingFarm, setEditingFarm] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await fetch("/api/auth/user");
+        if (!res.ok) throw new Error("Failed to fetch user");
+        const data = await res.json();
+        setCurrentUser(data.user);
+      } catch (err) {
+        console.error("Error fetching user:", err);
+      }
+    }
+
+    fetchUser();
+  }, []);
 
   const fetchFarms = useCallback(async () => {
     try {
@@ -107,7 +123,6 @@ const Page = () => {
     }
   }
 
-  // Delete farm
   async function handleDelete(id) {
     if (!confirm("Are you sure you want to delete this farm?")) return;
 
@@ -130,12 +145,13 @@ const Page = () => {
     <div className="px-4 w-full">
       <section className=" md:py-8 py-4 px-4 relative overflow-hidden rounded-md">
         <Decoration />
-        <h1 className="dark:text-gray-800 text-white md:text-2xl tracking-wide font-bold relative z-20">
-          Welcome back {session?.user?.name || "Farmer"}
+        <h1 className="dark:text-gray-200 text-white md:text-2xl tracking-wide font-bold relative z-20">
+          Welcome {currentUser?.farm?.name || "Farmer"}!
         </h1>
 
-        <p className="dark:text-gray-700 text-white  mb-3 relative z-20">
-          This is your starting point for managing and monitoring your farm.
+        <p className="dark:text-gray-200 text-white  mb-3 relative z-20">
+          Monitor your environment, plan your tasks ,track your inputs and
+          optimize every season anywhere ,anytime.
         </p>
 
         <Cards />

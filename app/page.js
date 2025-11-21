@@ -37,7 +37,7 @@ export default function HomePage() {
  useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 4000); 
+    }, 10000); 
     return () => clearInterval(interval);
   }, []);
   
@@ -78,7 +78,7 @@ export default function HomePage() {
        
         
       </section>
-      <div className="flex justify-center mt-4 gap-2">
+      <div className="flex justify-center mt-2 gap-2">
           {slides.map((_, index) => (
             <button
               key={index}

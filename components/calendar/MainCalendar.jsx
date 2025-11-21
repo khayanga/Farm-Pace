@@ -99,7 +99,7 @@ const MainCalendar = () => {
     <div className="p-2">
       <h1 className="text-2xl text-primary font-bold">Farm Calendar</h1>
       <p className="text-sm font-light tracking-wider mb-4">
-        Manage and schedule your daily activities down below seamlessly
+        Manage and schedule your daily activities with ease.
       </p>
 
       <CalendarComponent

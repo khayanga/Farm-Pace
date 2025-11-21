@@ -15,6 +15,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils" 
 import { Button } from "./ui/button";
 import { signOut } from "next-auth/react";
+import Image from "next/image";
 
 export function AppSidebar() {
   const pathname = usePathname(); 
@@ -22,7 +23,16 @@ export function AppSidebar() {
   return (
     <Sidebar className="shadow-md">
       <SidebarHeader>
-        <h1 className="text-primary text-xl font-medium ml-3">SHAMBANY</h1>
+        {/* <div className="bg-red-200 p-3 rounded-md w-fit">
+    <Image
+      src="/logo.png"
+      alt="FarmPace Logo"
+      width={150}
+      height={50}
+    />
+  </div> */}
+
+  <h1 className="test-lg font-bold ml-2 text-primary">SHAMBANY</h1>
       </SidebarHeader>
       <SidebarContent className="overflow-y-auto">
         <SidebarGroup>
