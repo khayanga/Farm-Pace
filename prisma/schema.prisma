@@ -1,91 +1,49 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  
 }
-
-enum TaskType {
-  fertilizer
-  foliar_fertilizer
-  pesticide
-  fungicide
-  irrigation
-  harvesting
-}
-
-enum TaskStatus {
-  pending
-  completed
-  skipped
-  in_progress
-}
-
-enum Role {
-  farmer
-  admin
-  engineer
-  agronomist
-  marketer
-}
-enum SensorMetric {
-  temperature_day
-  temperature_night
-  humidity
-  soil_moisture
-  soil_ph
-  co2
-}
-
-enum RecurrenceFrequency {
-  daily
-  weekly
-  monthly
-  yearly
-  custom
-}
-
 
 model User {
-  user_id            String     @id @default(uuid())
-  name               String?
-  email              String     @unique
-  password           String?
-  role               Role       @default(admin)
-  forcePasswordReset Boolean    @default(true)
-  farms              FarmUser[]      
-  cropLogs           CropLog[]
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  tasksCreated       Task[]        @relation("TasksCreatedBy")
-  taskAssignments    TaskAssignment[]
-  taskNotes          TaskNote[]
-  recurringTasksCreated  RecurringTask[] @relation("RecurringTasksCreatedBy")
-
+  user_id               String           @id @default(uuid())
+  name                  String?
+  email                 String           @unique
+  password              String?
+  role                  Role             @default(admin)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  forcePasswordReset    Boolean          @default(true)
+  cropLogs              CropLog[]
+  farms                 FarmUser[]
+  recurringTasksCreated RecurringTask[]  @relation("RecurringTasksCreatedBy")
+  tasksCreated          Task[]           @relation("TasksCreatedBy")
+  taskAssignments       TaskAssignment[]
+  taskNotes             TaskNote[]
 }
 
 model Farm {
-  id          String     @id @default(uuid())
-  farmNumber  Int        @unique @default(autoincrement())
-  name        String
-  location    String?
-  gps         String?
-  code        String     @unique   
-  users       FarmUser[]  
-  crops       FarmCrop[]
-  vendors     Vendor[]
-  offtakers   Offtaker[]
-  sensorData  SensorData[]
-  sensors     Sensor[]
-  tasks       Task[]
-  weatherData WeatherData[]
-  recurringTasks   RecurringTask[]
-  templates   CropTemplate[] @relation("FarmToTemplate")
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id             String          @id @default(uuid())
+  name           String
+  location       String?
+  gps            String?
+  code           String          @unique
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  farmNumber     Int             @unique @default(autoincrement())
+  templates      CropTemplate[]  @relation("FarmToTemplate")
+  crops          FarmCrop[]
+  users          FarmUser[]
+  offtakers      Offtaker[]
+  recurringTasks RecurringTask[]
+  sensors        Sensor[]
+  sensorData     SensorData[]
+  tasks          Task[]
+  vendors        Vendor[]
+  weatherData    WeatherData[]
 }
 
 model FarmUser {
@@ -93,43 +51,42 @@ model FarmUser {
   user_id String
   farm_id String
   role    Role
-  user    User   @relation(fields: [user_id], references: [user_id])
   farm    Farm   @relation(fields: [farm_id], references: [id])
+  user    User   @relation(fields: [user_id], references: [user_id])
 }
 
 model Crop {
-  id        Int        @id @default(autoincrement())
-  name      String
-  category  String?
-  phiData   PHIData[]
-  
+  id       Int       @id @default(autoincrement())
+  name     String
+  category String?
+  phiData  PHIData[]
 }
 
 model CropTemplate {
-  id        Int       @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   name      String
   farm_id   String
   category  String?
-  farm      Farm      @relation(fields: [farm_id], references: [id], name: "FarmToTemplate")
-  farmCrops FarmCrop[] 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  farm      Farm       @relation("FarmToTemplate", fields: [farm_id], references: [id])
+  farmCrops FarmCrop[]
 }
-model FarmCrop {
-  id          Int           @id @default(autoincrement())
-  farm_id     String
-  template_id Int
-  variety     String
-  seedlings   Int?
-  plantedAt   DateTime      @default(now())
 
-  farm        Farm          @relation(fields: [farm_id], references: [id])
-  template    CropTemplate  @relation(fields: [template_id], references: [id])
-  logs        CropLog[]
-  harvests    Harvest[]
-  sensors     SensorData[]
-  tasks       Task[]
+model FarmCrop {
+  id             Int             @id @default(autoincrement())
+  farm_id        String
+  variety        String
+  plantedAt      DateTime        @default(now())
+  seedlings      Int?
+  template_id    Int
+  logs           CropLog[]
+  farm           Farm            @relation(fields: [farm_id], references: [id])
+  template       CropTemplate    @relation(fields: [template_id], references: [id])
+  harvests       Harvest[]
   recurringTasks RecurringTask[]
+  sensors        SensorData[]
+  tasks          Task[]
 }
 
 model CropLog {
@@ -141,9 +98,8 @@ model CropLog {
   unit        String?
   createdBy   String
   createdAt   DateTime @default(now())
-
-  farmCrop    FarmCrop @relation(fields: [farmCrop_id], references: [id])
   user        User     @relation(fields: [createdBy], references: [user_id])
+  farmCrop    FarmCrop @relation(fields: [farmCrop_id], references: [id])
 }
 
 model Harvest {
@@ -153,7 +109,6 @@ model Harvest {
   grade2      Float?
   grade3      Float?
   date        DateTime @default(now())
-
   farmCrop    FarmCrop @relation(fields: [farmCrop_id], references: [id])
 }
 
@@ -182,57 +137,58 @@ model Offtaker {
 }
 
 model SensorData {
-  id          Int           @id @default(autoincrement())
-  farm_id     String
-  sensor_id   Int?
-  crop_id     Int?
-  metric      SensorMetric  
-  value       Float
-  unit        String?
-  recordedAt  DateTime      @default(now())
-  farm        Farm          @relation(fields: [farm_id], references: [id])
-  crop        FarmCrop?     @relation(fields: [crop_id], references: [id])
-  sensor      Sensor?       @relation(fields: [sensor_id], references: [id], name: "SensorReadings")
+  id         Int          @id @default(autoincrement())
+  farm_id    String
+  crop_id    Int?
+  metric     SensorMetric
+  value      Float
+  unit       String?
+  recordedAt DateTime     @default(now())
+  sensor_id  Int?
+  crop       FarmCrop?    @relation(fields: [crop_id], references: [id])
+  farm       Farm         @relation(fields: [farm_id], references: [id])
+  sensor     Sensor?      @relation("SensorReadings", fields: [sensor_id], references: [id])
 }
+
 model Sensor {
-  id          Int           @id @default(autoincrement())
-  code        String        @unique 
-  farm_id     String          
-  description String?       
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  farm        Farm          @relation(fields: [farm_id], references: [id])
-  readings    SensorData[]  @relation("SensorReadings")
+  id          Int          @id @default(autoincrement())
+  code        String       @unique
+  farm_id     String
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  farm        Farm         @relation(fields: [farm_id], references: [id])
+  readings    SensorData[] @relation("SensorReadings")
 }
 
 model Task {
-  id            Int        @id @default(autoincrement())
-  farm_id       String
-  farmCrop_id   Int?
-  title         String
-  description   String?
-  taskType      TaskType
-  color         String
-  startDate     DateTime
-  endDate       DateTime?
-  recurrence    String?
-  createdBy     String
-  status        TaskStatus @default(pending)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  farm          Farm       @relation(fields: [farm_id], references: [id])
-  farmCrop      FarmCrop?  @relation(fields: [farmCrop_id], references: [id])
-  creator       User       @relation("TasksCreatedBy", fields: [createdBy], references: [user_id])
-  assignedTo    TaskAssignment[]
-  notes         TaskNote[]
+  id          Int              @id @default(autoincrement())
+  farm_id     String
+  farmCrop_id Int?
+  title       String
+  description String?
+  taskType    TaskType
+  color       String
+  startDate   DateTime
+  endDate     DateTime?
+  recurrence  String?
+  createdBy   String
+  status      TaskStatus       @default(pending)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  creator     User             @relation("TasksCreatedBy", fields: [createdBy], references: [user_id])
+  farmCrop    FarmCrop?        @relation(fields: [farmCrop_id], references: [id])
+  farm        Farm             @relation(fields: [farm_id], references: [id])
+  assignedTo  TaskAssignment[]
+  notes       TaskNote[]
 }
 
 model TaskAssignment {
-  id       Int   @id @default(autoincrement())
-  task_id  Int
-  user_id  String
-  task     Task  @relation(fields: [task_id], references: [id])
-  user     User  @relation(fields: [user_id], references: [user_id])
+  id      Int    @id @default(autoincrement())
+  task_id Int
+  user_id String
+  task    Task   @relation(fields: [task_id], references: [id])
+  user    User   @relation(fields: [user_id], references: [user_id])
 }
 
 model TaskNote {
@@ -246,53 +202,91 @@ model TaskNote {
   user      User     @relation(fields: [user_id], references: [user_id])
 }
 
-
 model WeatherData {
-  id              Int       @id @default(autoincrement())
-  farm_id         String
-  temperature     Float?    
-  temp_min        Float?    
-  temp_max        Float?   
-  humidity        Float?  
-  rainfall        Float?      
-  soilMoisture    Float?
-  recordedAt      DateTime  @default(now())
+  id           Int      @id @default(autoincrement())
+  farm_id      String
+  temperature  Float?
+  humidity     Float?
+  soilMoisture Float?
+  recordedAt   DateTime @default(now())
+  rainfall     Float?
+  temp_max     Float?
+  temp_min     Float?
+  farm         Farm     @relation(fields: [farm_id], references: [id])
 
-  farm            Farm      @relation(fields: [farm_id], references: [id])
-  
-  @@index([farm_id, recordedAt]) 
+  @@index([farm_id, recordedAt])
 }
 
-
 model RecurringTask {
-  id            Int                 @id @default(autoincrement())
-  farm_id       String
-  farmCrop_id   Int?
-  title         String
-  description   String?
-  taskType      TaskType
-  color         String?
-  frequency     RecurrenceFrequency
-  interval      Int                 @default(1) 
-  startDate     DateTime
-  time          String              
-  endDate       DateTime? 
-  createdBy     String
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  farm          Farm                @relation(fields: [farm_id], references: [id])
-  farmCrop      FarmCrop?           @relation(fields: [farmCrop_id], references: [id])
-  creator       User                @relation("RecurringTasksCreatedBy", fields: [createdBy], references: [user_id])
-  exceptions    RecurringTaskException[]
+  id          Int                      @id @default(autoincrement())
+  farm_id     String
+  farmCrop_id Int?
+  title       String
+  description String?
+  taskType    TaskType
+  color       String?
+  frequency   RecurrenceFrequency
+  interval    Int                      @default(1)
+  startDate   DateTime
+  time        String
+  endDate     DateTime?
+  createdBy   String
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+  creator     User                     @relation("RecurringTasksCreatedBy", fields: [createdBy], references: [user_id])
+  farmCrop    FarmCrop?                @relation(fields: [farmCrop_id], references: [id])
+  farm        Farm                     @relation(fields: [farm_id], references: [id])
+  exceptions  RecurringTaskException[]
 }
 
 model RecurringTaskException {
-  id               Int      @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   recurringTask_id Int
   date             DateTime
-  isSkipped        Boolean  @default(false)
+  isSkipped        Boolean       @default(false)
   modifiedTitle    String?
   modifiedTime     String?
   modifiedDate     DateTime?
   recurringTask    RecurringTask @relation(fields: [recurringTask_id], references: [id])
+}
+
+enum TaskType {
+  fertilizer
+  foliar_fertilizer
+  pesticide
+  fungicide
+  irrigation
+  harvesting
+}
+
+enum TaskStatus {
+  pending
+  completed
+  skipped
+  in_progress
+}
+
+enum Role {
+  farmer
+  admin
+  engineer
+  agronomist
+  marketer
+}
+
+enum SensorMetric {
+  temperature_day
+  temperature_night
+  humidity
+  soil_moisture
+  soil_ph
+  co2
+}
+
+enum RecurrenceFrequency {
+  daily
+  weekly
+  monthly
+  yearly
+  custom
 }

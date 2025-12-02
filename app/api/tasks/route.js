@@ -215,6 +215,7 @@ export async function GET(req) {
             title: o.exception?.modifiedTitle || r.title,
             description: r.description,
             taskType: r.taskType,
+            time: r.time,
             color: r.color || TASK_COLORS[r.taskType] || "#000000",
             startDate: o.exception?.modifiedDate ? new Date(o.exception.modifiedDate) : o.startDate,
             farm: r.farm,

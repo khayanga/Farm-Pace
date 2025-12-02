@@ -69,13 +69,17 @@ export default function ViewTaskModal({
     if (!task) return;
 
     const confirmDelete = confirm(
-      `Are you sure you want to delete the task "${task.title}"?`
+      `Are you sure you want to delete "${task.title}"?`
     );
     if (!confirmDelete) return;
 
-    onDelete(task.id);
+    const idToDelete =
+      task.type === "recurring" ? `rec-${task.recurringId}` : task.id;
+
+    onDelete(idToDelete);
     onClose();
   };
+
   if (!task) return null;
 
   return (
@@ -96,7 +100,10 @@ export default function ViewTaskModal({
               <span
                 className={`w-2 h-2 rounded-full ${statusDot[task.status]}`}
               ></span>
-              {task.status.replace("_", " ")}
+              {(
+                task.status ??
+                (task.type === "recurring" ? "in_progress" : "pending")
+              ).replace("_", " ")}
             </Badge>
           </DialogTitle>
         </DialogHeader>
@@ -184,26 +191,26 @@ export default function ViewTaskModal({
             <p className="text-sm text-muted-foreground">No notes added yet.</p>
           ) : (
             <div className="space-y-3">
-              {notes.map((note) => (
-                <div
-                  key={note.id}
-                  className="border p-3 rounded-lg bg-muted/30"
-                >
-                  <p className="text-sm">{note.note}</p>
-
-                  {note.imageUrl && (
-                    <img
-                      src={note.imageUrl}
-                      alt="note"
-                      className="mt-2 rounded-md w-32 h-32 object-cover"
-                    />
-                  )}
-
-                  <p className="text-xs text-muted-foreground mt-1">
-                    By {note.user?.name || "Unknown"}
-                  </p>
-                </div>
-              ))}
+              {notes.map((note) =>
+                note ? (
+                  <div
+                    key={note.id}
+                    className="border p-3 rounded-lg bg-muted/30"
+                  >
+                    <p className="text-sm">{note.note}</p>
+                    {note.imageUrl && (
+                      <img
+                        src={note.imageUrl}
+                        alt="note"
+                        className="mt-2 rounded-md w-32 h-32 object-cover"
+                      />
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      By {note.user?.name || "Unknown"}
+                    </p>
+                  </div>
+                ) : null
+              )}
             </div>
           )}
 

@@ -32,13 +32,17 @@ const MainCalendar = () => {
     fetchUser();
   }, []);
 
-  useEffect(() => {
+ useEffect(() => {
   async function fetchTasks() {
     if (!currentUser || !currentUser.farm?.id) return;
 
     try {
-      const farmId = currentUser.farm.id; 
-      const res = await fetch(`/api/tasks?farmId=${farmId}`);
+      const farmId = currentUser.farm.id;
+      const now = new Date();
+      const rangeStart = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+      const rangeEnd = new Date(now.getFullYear(), now.getMonth() + 2, 0).toISOString();
+      
+      const res = await fetch(`/api/tasks?farmId=${farmId}&start=${rangeStart}&end=${rangeEnd}`);
       const data = await res.json();
 
       if (!Array.isArray(data)) {
@@ -74,18 +78,48 @@ const MainCalendar = () => {
     setViewTaskModal(false);
   }
 
-  async function handleTaskDelete(id) {
-    try {
-      const res = await fetch(`/api/tasks/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete task");
 
-      setTasks((prev) => prev.filter((t) => t.id !== id));
-      setSelectedTask(null);
-      setViewTaskModal(false);
-    } catch (err) {
-      console.error(err);
+async function handleTaskDelete(taskId) {
+  try {
+    let apiId = taskId;
+    if (typeof taskId === "string" && taskId.startsWith("rec-")) {
+      const parts = taskId.split("-");
+      const recurringId = parts[1]; 
+      apiId = `rec-${recurringId}`;
     }
+
+    const res = await fetch(`/api/tasks/${apiId}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Failed to delete task: ${errText}`);
+    }
+
+  
+    setTasks((prev) =>
+      prev.filter((t) => {
+        
+        if (t.id === taskId) return false;
+
+        
+        if (t.taskId && t.taskId === taskId) return false;
+
+        return true;
+      })
+    );
+
+    setSelectedTask(null);
+    setViewTaskModal(false);
+  } catch (err) {
+    console.error("Error deleting task:", err);
   }
+}
+
+
+
+
 
   if (!currentUser) {
     return (
@@ -103,7 +137,7 @@ const MainCalendar = () => {
       </p>
 
       <CalendarComponent
-        tasks={Array.isArray(tasks) ? tasks : []} // safety check
+        tasks={Array.isArray(tasks) ? tasks : []} 
         onDateClick={(date) => setSelectedDate(date)}
         onTaskClick={handleTaskClick}
       />
@@ -129,7 +163,6 @@ const MainCalendar = () => {
         onClose={() => setEditOpen(false)}
         setTasks={setTasks}
         refresh={() => {
-          // refetch tasks safely
           if (currentUser?.farmId) fetch(`/api/tasks?farmId=${currentUser.farmId}`)
             .then(res => res.json())
             .then(data => Array.isArray(data) ? setTasks(data) : setTasks([]))

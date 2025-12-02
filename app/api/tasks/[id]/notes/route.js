@@ -1,43 +1,61 @@
 import { getCurrentUser } from "@/lib/getCurrentUser";
+import db from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
 export async function POST(req, context) {
   try {
     const user = await getCurrentUser(req);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    let { id: taskId } = await context.params;
+    if (!taskId) return NextResponse.json({ error: "Missing task ID" }, { status: 400 });
+
+    let cleanId = String(taskId);
+    if (cleanId.startsWith("task-")) cleanId = cleanId.replace("task-", "");
+
+    let isRecurring = false;
+    if (cleanId.startsWith("rec-")) {
+      cleanId = cleanId.replace("rec-", "");
+      isRecurring = true;
     }
 
-    const { id: taskId } = await context.params;
-    if (!taskId) {
-      return NextResponse.json({ error: "Missing task ID" }, { status: 400 });
-    }
+    const parsedId = parseInt(cleanId);
+    if (isNaN(parsedId)) return NextResponse.json({ error: "Invalid task ID" }, { status: 400 });
 
     const { note, imageUrl } = await req.json();
+    if (!note) return NextResponse.json({ error: "Note content is required" }, { status: 400 });
+
     if (!["admin", "agronomist"].includes(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    
+    const taskExists = isRecurring
+      ? await db.recurringTask.findUnique({ where: { id: parsedId } })
+      : await db.task.findUnique({ where: { id: parsedId } });
+
+    if (!taskExists) return NextResponse.json({ error: "Task not found" }, { status: 404 });
+
+    
     const newNote = await db.taskNote.create({
       data: {
-        task_id: parseInt(taskId),
-        user_id: user.user_id,
         note,
         imageUrl: imageUrl || null,
+        user_id: user.user_id,
+        ...(isRecurring
+          ? { recurringTask_id: parsedId }
+          : { task_id: parsedId }),
       },
-      include: {
-        user: true,
-      },
+      include: { user: true },
     });
-    return NextResponse.json({ note: created }, { status: 201 });
+
+    return NextResponse.json({ note: newNote }, { status: 201 });
   } catch (error) {
     console.error("Error creating task note:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+
 
 export async function PATCH(req, context) {
   try {

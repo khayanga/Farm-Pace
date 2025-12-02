@@ -17,36 +17,76 @@ export default function AddNotes({ open, onClose, taskId, onNoteAdded }) {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // const handleSubmit = async () => {
+  //   setLoading(true);
+
+  //   let imageUrl = null;
+
+  //   if (image) {
+  //     const form = new FormData();
+  //     form.append("file", image);
+  //     form.append("upload_preset", "task_images");
+
+  //     const res = await fetch(
+  //       "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload",
+  //       { method: "POST", body: form }
+  //     );
+
+  //     const data = await res.json();
+  //     imageUrl = data.secure_url;
+  //   }
+
+  //   await fetch(`/api/tasks/${taskId}/notes`, {
+  //     method: "POST",
+  //     body: JSON.stringify({ note, imageUrl }),
+  //   });
+
+  //   setLoading(false);
+  //   onClose();
+  //   setNote("");
+  //   setImage(null);
+  //   onNoteAdded();
+  // };
+
+
   const handleSubmit = async () => {
-    setLoading(true);
+  setLoading(true);
 
-    let imageUrl = null;
+  let imageUrl = null;
 
-    if (image) {
-      const form = new FormData();
-      form.append("file", image);
-      form.append("upload_preset", "task_images");
+  if (image) {
+    const form = new FormData();
+    form.append("file", image);
+    form.append("upload_preset", "task_images");
 
-      const res = await fetch(
-        "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload",
-        { method: "POST", body: form }
-      );
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload",
+      { method: "POST", body: form }
+    );
 
-      const data = await res.json();
-      imageUrl = data.secure_url;
-    }
+    const data = await res.json();
+    imageUrl = data.secure_url;
+  }
 
-    await fetch(`/api/tasks/${taskId}/notes`, {
-      method: "POST",
-      body: JSON.stringify({ note, imageUrl }),
-    });
+  // POST to your API
+  const res = await fetch(`/api/tasks/${taskId}/notes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ note, imageUrl }),
+  });
 
-    setLoading(false);
-    onClose();
-    setNote("");
-    setImage(null);
-    onNoteAdded();
-  };
+  const created = await res.json();
+
+  setLoading(false);
+  onClose();
+  setNote("");
+  setImage(null);
+
+  // Pass the actual note object
+  if (created?.note) {
+    onNoteAdded(created.note);
+  }
+};
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
