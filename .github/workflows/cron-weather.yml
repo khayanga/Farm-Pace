@@ -1,24 +1,31 @@
 name: Weather Cron
 
 on:
-  workflow_dispatch: {}
   schedule:
-    - cron: '0 */12 * * *'
+    - cron: '0 */12 * * *' 
+  workflow_dispatch: {}
 
 jobs:
-  fetch-weather:
+  run-cron:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
-      - name: Install pnpm
-        run: npm install -g pnpm
+          node-version: 20
+          cache: 'pnpm'
+
       - name: Install dependencies
         run: pnpm install
-      - name: Run cron script
-        run: pnpm run cron-weather
+
+      - name: Generate Prisma client
+        run: pnpm prisma generate
+
+      - name: Run weather cron
         env:
-          DATABASE_URL: ${{ secrets.DIRECT_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: pnpm run cron-weather
