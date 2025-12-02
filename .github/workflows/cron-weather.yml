@@ -14,6 +14,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+          cache: 'pnpm'
       - name: Install pnpm
         run: npm install -g pnpm
       - name: Install dependencies
@@ -21,4 +22,4 @@ jobs:
       - name: Run cron script
         run: pnpm run cron-weather
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
