@@ -8,7 +8,7 @@ export async function proxy(req) {
   const { pathname } = req.nextUrl;
   const session = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-//   console.log("🔐 Middleware active:", pathname, "| Session:", !!session);
+
 
   const isPublic = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
   const isProtected = !isPublic;
