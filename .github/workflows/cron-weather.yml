@@ -18,8 +18,10 @@ jobs:
         run: npm install -g pnpm
       - name: Install dependencies
         run: pnpm install
-      - name: Run cron script
-        run: pnpm run cron-weather
+      - name: Generate Prisma client
+        run: pnpm prisma generate
+      - name: Run weather cron
         env:
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+         DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: pnpm run cron-weather
 
